@@ -54,7 +54,7 @@ cpu=$(grep -m 1 "^model name" /proc/cpuinfo | awk  '{print substr($0, index($0,$
 cores=$(grep -c "^processor" /proc/cpuinfo)
 arch=$(uname -m)
 case "$OSTYPE" in
-  darwin*)  os="mac" ;;
+  darwin*)  os="darwin" ;;
   linux*)   os="linux" ;;
   msys*)    os="windows" ;;
   cygwin*)  os="windows" ;;
