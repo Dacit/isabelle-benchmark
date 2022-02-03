@@ -1,11 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eou pipefail
 
 timestamp=$(date +%Y-%m-%d_%H-%M-%S)
 log="benchmark_$timestamp.csv"
 
+# Get Isabelle
+if [[ $# -eq 0 ]]; then
+  isabelle="isabelle"
+elif [[ $# -eq 1 ]]; then
+  isabelle="$1"
+else
+  echo "usage: $0 [ISABELLE]"
+  exit 1
+fi
+
 # Check isabelle version
-isabelle="bin/isabelle"
 version=$($isabelle version)
 if [[ $version != "Isabelle2021-1" ]]; then
   echo "Wrong isabelle version: $version"
@@ -22,13 +31,15 @@ if [[ -f "$settings" ]]; then
   fi
   mv "$settings" "$settings_bak"
 else
-  mkdir -p "$USER_HOME/.isabelle/$version/etc"
+  mkdir -p "$HOME/.isabelle/$version/etc"
 fi
 # Restore backup after exit
 cleanup()
 {
-  if [[ -f "$settings_bak" ]]; then
+  if [[ -z ${settings_bak+x} ]]; then
     mv -f "$settings_bak" "$settings"
+  else
+    rm "$settings"
   fi
 }
 trap cleanup 0 1 2 3 6
@@ -48,7 +59,7 @@ memory=$(free --giga | grep "^Mem:" | awk '{print $2}')
 cpu=$(lscpu | grep "^Model name:" | awk  '{print substr($0, index($0,$3))}' | cut -f1 -d"@" | awk '{$1=$1;print}')
 cores=$(lscpu | grep "^CPU(s):" | awk  '{print $2}')
 speed=$(dmesg | grep "MHz processor" | awk  '{print $5}' | grep -oP "^[0-9]+")
-arch=$(arch)
+arch=$(uname -m)
 case "$OSTYPE" in
   darwin*)  os="mac" ;;
   linux*)   os="linux" ;;
@@ -74,7 +85,7 @@ run_bench()
 # Run configs
 echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores @ ${speed}MHz"
 echo "Running benchmarks... result table:"
-echo "cpu, speed, os, heap, threads, time, cputime"
+echo "cpu, speed, os, heap, threads, time, cputime" | tee "$log"
 for (( cor = 4; cor <= cores; cor = cor * 2 )); do
   for (( mem = cor; (mem <= memory && mem <= cor * cor); mem = mem * 2 )); do
     if [[ $mem -le 16 ]]; then
