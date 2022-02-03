@@ -1,5 +1,7 @@
 # isabelle-benchmark
-Isabelle user benchmark, results in the [spreadsheet](https://docs.google.com/spreadsheets/d/12GhEwSNSopowDBq5gSem3u39fliiIcoTIZHMnX4RE3A).
+Isabelle user benchmark.
+Results are in the [spreadsheet](https://docs.google.com/spreadsheets/d/12GhEwSNSopowDBq5gSem3u39fliiIcoTIZHMnX4RE3A) -
+put yours in as well!
 
 ## Prerequisites
 Download and install [Isabelle2021-1](https://isabelle.in.tum.de/).
