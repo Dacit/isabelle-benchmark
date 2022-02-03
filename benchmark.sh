@@ -63,7 +63,7 @@ case "$OSTYPE" in
 esac
 
 # Benchmark
-run_bench()
+run_memory_core_config()
 {
   export PLATFORM=$1
   export HEAP=$3
@@ -76,26 +76,30 @@ run_bench()
 }
 
 # Run configs
-echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores"
-echo "Running benchmarks... result table:"
-echo "cpu, os, heap, threads, time, cputime" | tee -a "$log"
-for (( cor = 4; cor <= cores; cor = cor * 2 )); do
+run_memory_configs()
+{
+  local cor=$1
+  if [[ $cor -gt 16 && 16 -le $memory ]]; then
+      run_memory_core_config "${arch}_32-$os" "$cor" 16
+  fi
   for (( mem = cor; (mem <= memory && mem <= cor * cor); mem = mem * 2 )); do
     if [[ $mem -le 16 ]]; then
-      run_bench "${arch}_32-$os" "$cor" "$mem"
+      run_memory_core_config "${arch}_32-$os" "$cor" "$mem"
     else
-      run_bench "$arch-$os" "$cor" "$mem"
+      run_memory_core_config "$arch-$os" "$cor" "$mem"
     fi
   done
-done
+}
 
-# Run max. core config
+echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores"
+echo "Running benchmarks... result table:"
+
+echo "cpu, os, heap, threads, time, cputime" | tee -a "$log"
+
+for (( cor = 4; cor <= cores; cor = cor * 2 )); do
+  run_memory_configs "$cor"
+done
+# Run max. core config if not power of 2
 if [[ $cor -lt $cores ]]; then
-  for (( mem = cores; (mem <= memory && mem <= cores * cores); mem = mem * 2 )); do
-    if [[ $mem -le 16 ]]; then
-      run_bench "${arch}_32-$os" "$cores" "$mem"
-    else
-      run_bench "$arch-$os" "$cores" "$mem"
-    fi
-  done
+  run_memory_configs "$cores"
 fi
