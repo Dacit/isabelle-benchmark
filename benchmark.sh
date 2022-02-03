@@ -96,6 +96,12 @@ echo "Running benchmarks... result table:"
 
 echo "cpu, os, heap, threads, time, cputime" | tee -a "$log"
 
+if [[ $memory -ge 4 ]]; then
+  run_memory_core_config "${arch}_32-$os" 1 4
+fi
+if [[ $memory -ge 8 ]]; then
+  run_memory_core_config "${arch}_32-$os" 1 8
+fi
 for (( cor = 4; cor <= cores; cor = cor * 2 )); do
   run_memory_configs "$cor"
 done
