@@ -50,9 +50,8 @@ EOF
 
 # Find out system
 memory=$(free --giga | grep "^Mem:" | awk '{print $2}')
-cpu=$(lscpu | grep "^Model name:" | awk  '{print substr($0, index($0,$3))}' | cut -f1 -d"@" | awk '{$1=$1;print}')
+cpu=$(lscpu | grep "^Model name:" | awk  '{print substr($0, index($0,$3))}')
 cores=$(lscpu | grep "^CPU(s):" | awk  '{print $2}')
-speed=$(dmesg | grep "MHz processor" | awk  '{print $5}' | grep -oP "^[0-9]+")
 arch=$(uname -m)
 case "$OSTYPE" in
   darwin*)  os="mac" ;;
@@ -69,7 +68,7 @@ run_bench()
   export PLATFORM=$1
   export HEAP=$3
   local CORES=$2
-  echo -n "$cpu, $speed, $os, $HEAP, $CORES, " | tee -a "$log"
+  echo -n "$cpu, $os, $HEAP, $CORES, " | tee -a "$log"
   res=$($isabelle build -c -o threads="$CORES" HOL-Analysis)
   elapsed=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $3}' | cut -c2-)
   cpu_time=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $6}')
@@ -77,9 +76,9 @@ run_bench()
 }
 
 # Run configs
-echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores @ ${speed}MHz"
+echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores"
 echo "Running benchmarks... result table:"
-echo "cpu, speed, os, heap, threads, time, cputime" | tee -a "$log"
+echo "cpu, os, heap, threads, time, cputime" | tee -a "$log"
 for (( cor = 4; cor <= cores; cor = cor * 2 )); do
   for (( mem = cor; (mem <= memory && mem <= cor * cor); mem = mem * 2 )); do
     if [[ $mem -le 16 ]]; then
