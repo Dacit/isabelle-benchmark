@@ -21,34 +21,28 @@ if [[ $version != "Isabelle2021-1" ]]; then
   exit 1
 fi
 
-# Backup isabelle settings file, if exists
-settings="$HOME/.isabelle/$version/etc/settings"
-if [[ -f "$settings" ]]; then
-  settings_bak="${settings}_bak"
-  if [[ -f "$settings_bak" ]]; then
-    echo "Backup file $settings_bak already exists. Clean up manually!"
-    exit 1
-  fi
-  mv "$settings" "$settings_bak"
+# Create benchmark settings dir
+benchmark_user_home=$(realpath "benchmark_$timestamp")
+if [[ -d "$benchmark_user_home" ]]; then
+  echo "Benchmark directory already exists"
+  exit 1
 else
-  mkdir -p "$HOME/.isabelle/$version/etc"
+  mkdir -p "$benchmark_user_home"
+  export USER_HOME="$benchmark_user_home"
 fi
-# Restore backup after exit
+# Clean up benchmark settings dir
 cleanup()
 {
-  if [[ -z ${settings_bak+x} ]]; then
-    mv -f "$settings_bak" "$settings"
-  else
-    rm "$settings"
+  if [[ -d "$benchmark_user_home" ]]; then
+    rm -r "$benchmark_user_home"
   fi
 }
 trap cleanup 0 1 2 3 6
 
 # Write benchmark settings file
-touch "$settings"
-cat "$settings" << \EOF
-init_component "${ISABELLE_COMPONENTS_BASE:-$USER_HOME/.isabelle/contrib}"
-ML_OPTIONS="--maxheap ${HEAP}"
+$isabelle components -I
+cat << \EOF > "$benchmark_user_home/.isabelle/$version/etc/settings"
+ML_OPTIONS="--maxheap ${HEAP}G"
 ISABELLE_PLATFORM64="${PLATFORM}"
 ML_PLATFORM="$ISABELLE_PLATFORM64"
 ML_HOME="$ML_HOME/../$ML_PLATFORM"
@@ -75,17 +69,18 @@ run_bench()
   export PLATFORM=$1
   export HEAP=$3
   local CORES=$2
-  echo -n "$cpu, $speed, $os, $HEAP, $CORES, " | tee "$log"
+  echo -n "$cpu, $speed, $os, $HEAP, $CORES, " | tee -a "$log"
   res=$($isabelle build -c -o threads="$CORES" HOL-Analysis)
+  echo "$res"
   elapsed=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $3}' | cut -c2-)
   cpu_time=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $6}')
-  echo "$elapsed, $cpu_time" | tee "$log"
+  echo "$elapsed, $cpu_time" | tee -a "$log"
 }
 
 # Run configs
 echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores @ ${speed}MHz"
 echo "Running benchmarks... result table:"
-echo "cpu, speed, os, heap, threads, time, cputime" | tee "$log"
+echo "cpu, speed, os, heap, threads, time, cputime" | tee -a "$log"
 for (( cor = 4; cor <= cores; cor = cor * 2 )); do
   for (( mem = cor; (mem <= memory && mem <= cor * cor); mem = mem * 2 )); do
     if [[ $mem -le 16 ]]; then
