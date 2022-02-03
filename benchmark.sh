@@ -71,7 +71,6 @@ run_bench()
   local CORES=$2
   echo -n "$cpu, $speed, $os, $HEAP, $CORES, " | tee -a "$log"
   res=$($isabelle build -c -o threads="$CORES" HOL-Analysis)
-  echo "$res"
   elapsed=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $3}' | cut -c2-)
   cpu_time=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $6}')
   echo "$elapsed, $cpu_time" | tee -a "$log"
