@@ -52,7 +52,10 @@ EOF
 memory=$(($(grep "^MemTotal:" /proc/meminfo | awk '{print $2}') / 1000024))
 cpu=$(grep -m 1 "^model name" /proc/cpuinfo | awk  '{print substr($0, index($0,$4))}')
 cores=$(grep -c "^processor" /proc/cpuinfo)
-arch=$(uname -m)
+case $(uname -m) in
+  "aarch64")  arch="arm64" ;;
+  *)          arch=$(uname -m) ;;
+esac
 case "$OSTYPE" in
   darwin*)  os="darwin" ;;
   linux*)   os="linux" ;;
