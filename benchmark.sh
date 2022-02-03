@@ -49,9 +49,9 @@ ML_HOME="$ML_HOME/../$ML_PLATFORM"
 EOF
 
 # Find out system
-memory=$(free --giga | grep "^Mem:" | awk '{print $2}')
-cpu=$(lscpu | grep "^Model name:" | awk  '{print substr($0, index($0,$3))}')
-cores=$(lscpu | grep "^CPU(s):" | awk  '{print $2}')
+memory=$(($(grep "^MemTotal:" /proc/meminfo | awk '{print $2}') / 1000024))
+cpu=$(grep -m 1 "^model name" /proc/cpuinfo | awk  '{print substr($0, index($0,$4))}')
+cores=$(grep -c "^processor" /proc/cpuinfo)
 arch=$(uname -m)
 case "$OSTYPE" in
   darwin*)  os="mac" ;;
