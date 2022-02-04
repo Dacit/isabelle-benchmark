@@ -79,7 +79,7 @@ run_memory_core_config()
   export PLATFORM=$1
   export HEAP=$(($3/2))
   local CORES=$2
-  echo -n "$cpu, $os, $HEAP, $CORES, " | tee -a "$log"
+  echo -n "$cpu, $os, $3, $CORES, " | tee -a "$log"
   res=$($isabelle build -c -o threads="$CORES" HOL-Analysis)
   elapsed=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $3}' | cut -c2-)
   cpu_time=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $6}')
