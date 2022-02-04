@@ -73,9 +73,9 @@ if [[ "$os" != "darwin" ]]; then
   memory=$(($(grep "^MemTotal:" /proc/meminfo | awk '{print $2}') / 1048576))
   cores=$(grep -c "^processor" /proc/cpuinfo)
 else
-  cpu=$(sysctl machdep.cpu.brand_string | awk -F': ' '{print $2}')
-  memory=$(($(sysctl hw.memsize | awk -F': ' '{print $2}') / 1073741824))
-  cores=$(sysctl machdep.cpu.core_count | awk -F': ' '{print $2}')
+  cpu=$(sysctl -n machdep.cpu.brand_string)
+  memory=$(($(sysctl -n hw.memsize) / 1073741824))
+  cores=$(sysctl -n machdep.cpu.core_count)
 fi
 
 echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores"
