@@ -2,7 +2,6 @@
 set -eou pipefail
 
 timestamp=$(date +%Y-%m-%d_%H-%M-%S)
-log="benchmark_$timestamp.csv"
 
 # Get Isabelle
 if [[ $# -eq 0 ]]; then
@@ -15,7 +14,7 @@ else
 fi
 
 # Prompt user for cpu model name if not available (some arm systems)
-if grep -m 1 "^model name" /proc/cpuinfo; then
+if grep -q -m 1 "^model name" /proc/cpuinfo; then
   cpu=$(grep -m 1 "^model name" /proc/cpuinfo | awk  '{print substr($0, index($0,$4))}')
 else
   echo "Could not identify cpu. Please specify model name:"
@@ -73,50 +72,62 @@ case "$OSTYPE" in
             exit 1;;
 esac
 
+echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores"
+echo "Creating benchmark configs. Note that heap settings apply to both the polyml/jvm process."
+declare -a configs=()
+
+mk_mem_configs()
+{
+  local cor=$1
+  if [[ $cor -gt 16 && 32 -le $memory ]]; then
+      configs+=("${arch}_32-$os 16 $cor")
+  fi
+  for (( mem = cor; (2 * mem <= memory && mem <= 2 * cor); mem = 2 * mem )); do
+    if [[ $mem -le 16 ]]; then
+      configs+=("${arch}_32-$os $mem $cor")
+    else
+      configs+=("$arch-$os $mem $cor")
+    fi
+  done
+}
+
+if [[ $memory -ge 8 ]]; then
+  configs+=("${arch}_32-$os 4 1")
+fi
+if [[ $memory -ge 16 ]]; then
+  configs+=("${arch}_32-$os 8 1")
+fi
+for (( cor = 4; cor <= cores; cor = cor * 2 )); do
+  mk_mem_configs "$cor"
+done
+# Run max. core config if not power of 2
+if [[ $cor -lt $cores ]]; then
+  mk_mem_configs "$cores"
+fi
+echo "(platform heap cores):"
+
+for config in "${configs[@]}"; do
+  echo -n " ($config)"
+done
+echo ""
+
+log="benchmark_$timestamp.csv"
+echo "Running benchmarks. Result table..."
+echo "cpu, os, heap, threads, time, cputime" | tee -a "$log"
+
 # Benchmark
-run_memory_core_config()
+do_run()
 {
   export PLATFORM=$1
-  export HEAP=$(($3/2))
-  local CORES=$2
-  echo -n "$cpu, $os, $3, $CORES, " | tee -a "$log"
+  export HEAP=$2
+  local CORES=$3
+  echo -n "$cpu, $os, $HEAP, $CORES, " | tee -a "$log"
   res=$($isabelle build -c -o threads="$CORES" HOL-Analysis)
   elapsed=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $3}' | cut -c2-)
   cpu_time=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $6}')
   echo "$elapsed, $cpu_time" | tee -a "$log"
 }
 
-# Run configs
-run_memory_configs()
-{
-  local cor=$1
-  if [[ $cor -gt 16 && 16 -le $memory ]]; then
-      run_memory_core_config "${arch}_32-$os" "$cor" 16
-  fi
-  for (( mem = cor; (mem <= memory && mem <= cor * 8); mem = mem * 2 )); do
-    if [[ $mem -le 16 ]]; then
-      run_memory_core_config "${arch}_32-$os" "$cor" "$mem"
-    else
-      run_memory_core_config "$arch-$os" "$cor" "$mem"
-    fi
-  done
-}
-
-echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores"
-echo "Running benchmarks... result table:"
-
-echo "cpu, os, heap, threads, time, cputime" | tee -a "$log"
-
-if [[ $memory -ge 4 ]]; then
-  run_memory_core_config "${arch}_32-$os" 1 4
-fi
-if [[ $memory -ge 8 ]]; then
-  run_memory_core_config "${arch}_32-$os" 1 8
-fi
-for (( cor = 4; cor <= cores; cor = cor * 2 )); do
-  run_memory_configs "$cor"
+for config in "${configs[@]}"; do
+  do_run $config
 done
-# Run max. core config if not power of 2
-if [[ $cor -lt $cores ]]; then
-  run_memory_configs "$cores"
-fi
