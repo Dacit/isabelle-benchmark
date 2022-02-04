@@ -93,7 +93,7 @@ run_memory_configs()
   if [[ $cor -gt 16 && 16 -le $memory ]]; then
       run_memory_core_config "${arch}_32-$os" "$cor" 16
   fi
-  for (( mem = cor; (mem <= memory && mem <= cor * cor && mem <= cor * 8); mem = mem * 2 )); do
+  for (( mem = cor; (mem <= memory && mem <= cor * 8); mem = mem * 2 )); do
     if [[ $mem -le 16 ]]; then
       run_memory_core_config "${arch}_32-$os" "$cor" "$mem"
     else
