@@ -14,6 +14,14 @@ else
   exit 1
 fi
 
+# Prompt user for cpu model name if not available (some arm systems)
+if grep -m 1 "^model name" /proc/cpuinfo; then
+  cpu=$(grep -m 1 "^model name" /proc/cpuinfo | awk  '{print substr($0, index($0,$4))}')
+else
+  echo "Could not identify cpu. Please specify model name:"
+  read -r cpu
+fi
+
 # Check isabelle version
 version=$($isabelle version)
 if [[ $version != "Isabelle2021-1" ]]; then
@@ -50,7 +58,6 @@ EOF
 
 # Find out system
 memory=$(($(grep "^MemTotal:" /proc/meminfo | awk '{print $2}') / 1000024))
-cpu=$(grep -m 1 "^model name" /proc/cpuinfo | awk  '{print substr($0, index($0,$4))}')
 cores=$(grep -c "^processor" /proc/cpuinfo)
 case $(uname -m) in
   "aarch64")  arch="arm64" ;;
@@ -85,7 +92,7 @@ run_memory_configs()
   if [[ $cor -gt 16 && 16 -le $memory ]]; then
       run_memory_core_config "${arch}_32-$os" "$cor" 16
   fi
-  for (( mem = cor; (mem <= memory && mem <= cor * cor); mem = mem * 2 )); do
+  for (( mem = cor; (mem <= memory && mem <= cor * cor && mem <= cor * 8); mem = mem * 2 )); do
     if [[ $mem -le 16 ]]; then
       run_memory_core_config "${arch}_32-$os" "$cor" "$mem"
     else
