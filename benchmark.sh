@@ -51,6 +51,7 @@ trap cleanup 0 1 2 3 6
 $isabelle components -I
 cat << \EOF > "$benchmark_user_home/.isabelle/$version/etc/settings"
 ML_OPTIONS="--maxheap ${HEAP}G"
+ISABELLE_TOOL_JAVA_OPTIONS="-Djava.awt.headless=true -Xms512m -Xmx4${HEAP}g -Xss16m"
 ISABELLE_PLATFORM64="${PLATFORM}"
 ML_PLATFORM="$ISABELLE_PLATFORM64"
 ML_HOME="$ML_HOME/../$ML_PLATFORM"
@@ -76,7 +77,7 @@ esac
 run_memory_core_config()
 {
   export PLATFORM=$1
-  export HEAP=$3
+  export HEAP=$(($3/2))
   local CORES=$2
   echo -n "$cpu, $os, $HEAP, $CORES, " | tee -a "$log"
   res=$($isabelle build -c -o threads="$CORES" HOL-Analysis)
