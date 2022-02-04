@@ -29,7 +29,7 @@ if [[ $version != "Isabelle2021-1" ]]; then
 fi
 
 # Create benchmark settings dir
-benchmark_user_home=$(realpath "benchmark_$timestamp")
+benchmark_user_home="$(pwd)/benchmark_$timestamp"
 if [[ -d "$benchmark_user_home" ]]; then
   echo "Benchmark directory already exists"
   exit 1
