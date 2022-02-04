@@ -17,7 +17,7 @@ fi
 if grep -q -m 1 "^model name" /proc/cpuinfo; then
   cpu=$(grep -m 1 "^model name" /proc/cpuinfo | awk  '{print substr($0, index($0,$4))}')
 else
-  echo "Could not identify cpu. Please specify model name:"
+  echo "Could not identify cpu. Please specify cpu model name:"
   read -r cpu
 fi
 
