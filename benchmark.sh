@@ -13,14 +13,6 @@ else
   exit 1
 fi
 
-# Prompt user for cpu model name if not available (some arm systems)
-if grep -q -m 1 "^model name" /proc/cpuinfo; then
-  cpu=$(grep -m 1 "^model name" /proc/cpuinfo | awk  '{print substr($0, index($0,$4))}')
-else
-  echo "Could not identify cpu. Please specify cpu model name:"
-  read -r cpu
-fi
-
 # Check isabelle version
 version=$($isabelle version)
 if [[ $version != "Isabelle2021-1" ]]; then
@@ -57,12 +49,6 @@ ML_HOME="$ML_HOME/../$ML_PLATFORM"
 EOF
 
 # Find out system
-memory=$(($(grep "^MemTotal:" /proc/meminfo | awk '{print $2}') / 1000024))
-cores=$(grep -c "^processor" /proc/cpuinfo)
-case $(uname -m) in
-  "aarch64")  arch="arm64" ;;
-  *)          arch=$(uname -m) ;;
-esac
 case "$OSTYPE" in
   darwin*)  os="darwin" ;;
   linux*)   os="linux" ;;
@@ -71,6 +57,28 @@ case "$OSTYPE" in
   *)        echo "Unsupported os: $OSTYPE"
             exit 1;;
 esac
+
+if [[ $os == "darwin" ]]; then
+  memory=$(($(sysctl -n hw.memsize) / (1000*1024*1024)))
+  cpu=$(sysctl -n machdep.cpu.brand_string)
+  cores=$(sysctl -n hw.ncpu)
+else
+  memory=$(($(grep "^MemTotal:" /proc/meminfo | awk '{print $2}') / 1000024))
+  # Prompt user for cpu model name if not available (some arm systems)
+  if grep -q -m 1 "^model name" /proc/cpuinfo; then
+    cpu=$(grep -m 1 "^model name" /proc/cpuinfo | awk  '{print substr($0, index($0,$4))}')
+  else
+    echo "Could not identify cpu. Please specify cpu model name:"
+    read -r cpu
+  fi
+  cores=$(grep -c "^processor" /proc/cpuinfo)
+fi
+
+case $(uname -m) in
+  "aarch64")  arch="arm64" ;;
+  *)          arch=$(uname -m) ;;
+esac
+
 
 echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores"
 echo "Creating benchmark configs. Note that heap settings apply to both the polyml/jvm process."
