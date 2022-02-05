@@ -42,7 +42,7 @@ trap cleanup 0 1 2 3 6
 $isabelle components -I
 cat << \EOF > "$benchmark_user_home/.isabelle/$version/etc/settings"
 ML_OPTIONS="--maxheap ${HEAP}G"
-ISABELLE_TOOL_JAVA_OPTIONS="-Djava.awt.headless=true -Xms512m -Xmx4${HEAP}g -Xss16m"
+ISABELLE_TOOL_JAVA_OPTIONS="-Djava.awt.headless=true -Xms512m -Xmx${HEAP}g -Xss16m"
 ISABELLE_PLATFORM64="${PLATFORM}"
 ML_PLATFORM="$ISABELLE_PLATFORM64"
 ML_HOME="$ML_HOME/../$ML_PLATFORM"
