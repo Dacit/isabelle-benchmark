@@ -84,7 +84,7 @@ settings="$benchmark_user_home/.isabelle/$version/etc/settings"
 {
   echo "ML_OPTIONS=\"--maxheap ${ml_heap}G\"";
   echo "ISABELLE_TOOL_JAVA_OPTIONS=\"-Djava.awt.headless=true -Xms512m -Xmx${jvm_heap}g -Xss16m\"";
-  echo "ISABELLE_PLATFORM64=\"${arch}-${os}\"";
+  echo "ISABELLE_PLATFORM64=\"${arch}_32-${os}\"";
   echo 'ML_PLATFORM="$ISABELLE_PLATFORM64"';
   echo 'ML_HOME="$ML_HOME/../$ML_PLATFORM"';
   echo 'ML_PLATFORM="$ISABELLE_PLATFORM64"';
