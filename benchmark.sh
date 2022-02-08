@@ -114,6 +114,7 @@ for (( cor = 4; cor <= cores; cor = cor * 2 )); do
 done
 # Run max. core config if not power of 2
 if [[ $((cor / 2)) -lt $cores ]]; then
+  mk_mem_configs "$((cores/2))"
   mk_mem_configs "$cores"
 fi
 echo "(platform heap cores):"
