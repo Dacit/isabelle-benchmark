@@ -103,7 +103,7 @@ echo "Building AFP with NUMA, $jobs jobs, $threads threads/job, and $ml_heap + $
 SECONDS=0
 start=$(date +%Y-%m-%d_%H-%M-%S)
 echo "Start: $start" | tee -a "$log"
-$isabelle build -c -d '$AFP' -o threads="$threads" -v -N -j "$jobs" -a | tee -a "$log"
+$isabelle build -c -d '$AFP' -o threads="$threads" -v -N -j "$jobs" -X slow -g AFP | tee -a "$log"
 end=$(date +%Y-%m-%d_%H-%M-%S)
 echo "End: $end" | tee -a "$log"
 echo "Duration: $(date -d@$SECONDS -u +%H:%M:%S)" | tee -a "$log"
