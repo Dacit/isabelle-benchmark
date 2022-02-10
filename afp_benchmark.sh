@@ -59,6 +59,7 @@ $isabelle components -I
 # Find out system
 case "$OSTYPE" in
   linux*)   os="linux" ;;
+  cygwin*)  os="windows" ;;
   *)        echo "Unsupported os: $OSTYPE"
             exit 1;;
 esac
