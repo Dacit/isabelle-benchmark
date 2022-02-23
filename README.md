@@ -16,4 +16,4 @@ If you have Isabelle2021-1 in your `$PATH`, run `./benchmark.sh`.
 Otherwise, specify the path to your Isabelle2021-1 installation, e.g.: `./benchmark.sh /opt/Isabelle2021-1/bin/isabelle`
 
 ### Windows
-Copy the script into your isabelle folder, start the isabelle cygwin shell and run the script from there: `./benchmark.sh`
+Copy the script into your isabelle folder, start the isabelle cygwin terminal (`Cygwin-Terminal.bat`) and run the script from there: `./benchmark.sh`
