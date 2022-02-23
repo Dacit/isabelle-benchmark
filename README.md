@@ -8,7 +8,7 @@ Download and install [Isabelle2021-1](https://isabelle.in.tum.de/).
 
 ## Running the benchmark automatically
 Download the [benchmark script](https://raw.githubusercontent.com/Dacit/isabelle-benchmark/main/benchmark.sh).
-Each configuration takes about 5 minutes.
+The first two configurations will take 30 minutes each; each further configuration about 5 minutes.
 
 ### Linux / Os X
 If you have Isabelle2021-1 in your `$PATH`, run `./benchmark.sh`.
