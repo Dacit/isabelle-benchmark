@@ -1,0 +1,129 @@
+% !TeX root = ../main.tex
+\makeatletter
+\pgfplotsset{
+    boxplot prepared from table/.code={
+        \def\tikz@plot@handler{\pgfplotsplothandlerboxplotprepared}%
+        \pgfplotsset{
+            /pgfplots/boxplot prepared from table/.cd,
+            #1,
+        }
+    },
+    /pgfplots/boxplot prepared from table/.cd,
+        table/.code={\pgfplotstablecopy{#1}\to\boxplot@datatable},
+        row/.initial=0,
+        make style readable from table/.style={
+            #1/.code={
+                \pgfplotstablegetelem{\pgfkeysvalueof{/pgfplots/boxplot prepared from table/row}}{##1}\of\boxplot@datatable
+                \pgfplotsset{boxplot/#1/.expand once={\pgfplotsretval}}
+            }
+        },
+        make style readable from table=lower whisker,
+        make style readable from table=upper whisker,
+        make style readable from table=lower quartile,
+        make style readable from table=upper quartile,
+        make style readable from table=median,
+        make style readable from table=lower notch,
+        make style readable from table=upper notch,
+        make style readable from table=sample size,
+        make style readable from table=draw position
+}
+\makeatother
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\pgfplotstableread[col sep = comma]{rel_time_by_heap_box.csv}\reltimebyheapbox
+\begin{groupplot}[
+  group style={
+    group name=threads,
+    group size=1 by 4,
+    vertical sep=0pt,
+    x descriptions at=edge bottom,
+    y descriptions at=edge left,
+  },
+  height=120pt,
+  width=307pt,
+  xmin=2.5,
+  xmax=9.5,
+  ymin=0.7,
+  ymax=1.3,
+  xlabel={Heap Memory (log scale)},
+  x unit={\si{\giga\byte}},
+  boxplot/draw direction=y,
+  boxplot/variable width,
+  xticklabel={\pgfmathparse{pow(2,\tick)}\pgfmathprintnumber[int trunc]{\pgfmathresult}},
+  boxplot/every whisker/.style={gray},
+  boxplot/every median/.style={very thick},
+  boxplot/draw/median/.code={},
+]
+\nextgroupplot
+  \addplot[forget plot,boxplot prepared from table={table=\reltimebyheapbox,row=1,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[forget plot,boxplot prepared from table={table=\reltimebyheapbox,row=2,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[forget plot,boxplot prepared from table={table=\reltimebyheapbox,row=3,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[
+    densely dotted,
+    mark=-,
+    mark size={3pt},
+    mark options={solid,very thick},
+    discard if not={threads}{8},
+  ] table [
+    col sep=comma,
+    x=heap,
+    y=med,
+  ] {rel_time_by_heap_box.csv};
+  \addlegendentry{medians};
+\nextgroupplot
+  \addplot[boxplot prepared from table={table=\reltimebyheapbox,row=5,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[boxplot prepared from table={table=\reltimebyheapbox,row=6,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[boxplot prepared from table={table=\reltimebyheapbox,row=7,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[boxplot prepared from table={table=\reltimebyheapbox,row=8,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[
+    densely dotted,
+    mark=-,
+    mark size={3pt},
+    mark options={solid,very thick},
+    discard if not={threads}{16},
+  ] table [
+    col sep=comma,
+    x=heap,
+    y=med,
+  ] {rel_time_by_heap_box.csv};
+\nextgroupplot[ylabel={Relative Run-Time},every axis y label/.append style={at=(ticklabel cs:1.0)}]
+  \addplot[boxplot prepared from table={table=\reltimebyheapbox,row=10,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[boxplot prepared from table={table=\reltimebyheapbox,row=11,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[boxplot prepared from table={table=\reltimebyheapbox,row=12,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[boxplot prepared from table={table=\reltimebyheapbox,row=13,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[boxplot prepared from table={table=\reltimebyheapbox,row=14,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[
+    densely dotted,
+    mark=-,
+    mark size={3pt},
+    mark options={solid,very thick},
+    discard if not={threads}{32},
+  ] table [
+    col sep=comma,
+    x=heap,
+    y=med,
+  ] {rel_time_by_heap_box.csv};
+\nextgroupplot
+  \addplot[boxplot prepared from table={table=\reltimebyheapbox,row=16,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[boxplot prepared from table={table=\reltimebyheapbox,row=17,lower whisker=lw,upper whisker=uw,lower quartile=lq,upper quartile=uq,median=med,sample size=ss,draw position=heap}, boxplot prepared] coordinates {};
+  \addplot[
+    densely dotted,
+    mark=-,
+    mark size={3pt},
+    mark options={solid,very thick},
+    discard if not={threads}{64},
+  ] table [
+    col sep=comma,
+    x=heap,
+    y=med,
+  ] {rel_time_by_heap_box.csv};
+\end{groupplot}
+\node[right = 0.2cm of threads c1r1.east,anchor=north,rotate=90] {\num{8} Threads};
+\node[right = 0.2cm of threads c1r2.east,anchor=north,rotate=90] {\num{16} Threads};
+\node[right = 0.2cm of threads c1r3.east,anchor=north,rotate=90] {\num{32} Threads};
+\node[right = 0.2cm of threads c1r4.east,anchor=north,rotate=90] {\num{64} Threads};\end{tikzpicture}
+  \caption{Relative run-time changes to minimal memory configuration, by heap memory. The available heap memory has only a marginal impact on the runtime, with large amounts of available heap memory degrading performance independently of the number of threads used.}
+  \label{fig:heap_boxplot}
+\end{figure}

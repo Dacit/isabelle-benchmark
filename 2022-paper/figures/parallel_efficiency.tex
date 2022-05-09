@@ -1,0 +1,33 @@
+% !TeX root = ../main.tex
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+      xmode=log,
+      xtick={1,2,4,8,16,32,64,128},
+      xlabel={Thread Count (log scale)},
+      log ticks with fixed point,
+      yticklabel={\pgfmathprintnumber[zerofill,precision=1,fixed]{\tick}},
+      ymin=-0.1,
+      ymax=1.1,
+      ylabel={Parallel Efficiency},
+    ]
+    \foreach \cpu in \cpus {
+    	\addplot[
+    	  discard if not={cpu}{\cpu},
+          color=black,
+          mark=*,
+          mark options={color=black,fill=white,scale=1,opacity=0.9},
+          opacity=0.5
+        ] table [
+          col sep=comma,
+          x=threads,
+          y=rel
+        ] {parallel_efficiency.csv};
+    }
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Parallel efficiency by number of threads. The HOL-Analysis build does not scale past a low number of threads, with parallel efficiency already down by half when using eight threads.}
+    \label{fig:parallel_efficiency}
+\end{figure}

@@ -1,0 +1,197 @@
+% !TeX root = ../main.tex
+
+\section{Results}\label{sec:results}
+At the time of writing this paper,
+\num{\numRuns} results for a total of \num{\numConf} unique configurations have been reported,
+utilizing \num{\numCpus} distinct CPUs.
+Those include Intel Desktop/Server CPUs from Sandy Bridge to Alder Lake,
+AMD Ryzen Zen2 to Zen4 processors as well as Epyc and Threadripper server systems,
+a Fujitsu A64FX, and Apple M1 processors.
+
+\input{tables/top_cpus}
+Table \ref{tab:top_5_cpus} shows the five CPUs with the lowest time to solution,
+using the median value as an aggregate for multiple runs of the same configuration.
+Older Intel and AMD consumer hardware is surpassed by the Apple M1 Pro chip;
+only the most recent Intel core line performs better.
+Due to the nature of the benchmark, server and high performance hardware does not rank highly,
+with the best performing system (2x AMD Epyc 7742) clocking in at \SI{\bestServerTime}{\second}.
+
+In the following, we analyze how Isabelle configuration influences performance,
+investigate the impact of hardware parameters,
+and then compare our results to other computational benchmarks.
+Where individual CPUs were concerned,
+we filtered out special system configurations (e.g., overclocked hardware, dual-cpu systems, power-saving mode).
+We also encountered a small number of extreme outliers where Isabelle run-time was much longer than expected.
+For two of those, we could identify the user and investigate;
+in both cases, the system configuration was at fault
+(excessive swapping, UEFI set to \enquote{silent mode})
+and when corrected, results were much closer to the rest of the data.
+We could not investigate the third extreme outlier but excluded it from the following,
+since it is likely to stem from a similar cause.
+
+\subsection{Multi-Threaded Performance}\label{sec:performance_threads}
+The number of threads used plays a major role in the overall performance.
+\autoref{fig:time_by_threads} illustrates how the wall clock time and CPU time compare from a single thread to up to \num{128} threads.
+The optimal wall-clock time is achieved with \numrange{8}{16} threads
+depending on the hardware and greatly increases if more threads are used.
+This is typical behavior for a strong-scaling benchmark like ours,
+where the relative impact of communication increases with an increase in the number of threads used.
+For more than the optimal number of threads,
+the run-time increases substantially.
+The underlying limitations of the parallel computing model 
+-- the single-threaded garbage collection of the Poly/ML run-time and worker starvation after parallelization is saturated --
+were already discussed in~\cite{PolyParallel2010Matthews},
+albeit tests were run on a machine with 32 cores.
+It might be a surprise that the scalability is so low when distributing across more threads.
+In contrast,
+the CPU time divided by number of threads
+(which is not an ideal metric, but the only feasible solution due to the nature of the benchmark)
+flattens out at eight threads.
+This means that there is not too much computation overhead
+but the hardware can not be properly utilized,
+most likely due to the single-threaded garbage collection that stops all threads when running.
+This is an inherently sequential task, which means that Amdahl's Law (the speedup is limited by $1 / (1-\text{parallelizable portion})$~\cite{amdahls}) limits the achievable speedup for this problem.
+\input{figures/time_by_threads}
+
+The parallel efficiency paints a similar picture in \autoref{fig:parallel_efficiency},
+decreasing  almost linearly (on the logarithmic x-axis) up to \num{32} threads
+at which it is at a median of \num[round-mode=places,round-precision=3]{\effLin}.
+With the number of threads tending to the limit of \num{128},
+it approaches \num[round-mode=places,round-precision=3]{\effEnd}.
+There is an outlier where the parallel efficiency is over one --
+super-linear speedup is unusual but can appear in practice because of caching effects or resource contention in the measured system.
+\input{figures/parallel_efficiency}
+
+
+\subsection{Performance Impact of Heap Memory}
+As preliminary results indicated that heap memory
+(as long as sufficient)
+only plays a minor role in performance,
+we keep the JVM and Poly/ML processes at the same heap size.
+We know from experience that a few gigabytes of memory suffice for HOL-Analysis;
+however, increased parallelism requires more memory in principle due to memory overhead.
+Hence, the range of examined heap sizes depends on the number of threads used.
+\autoref{fig:heap_boxplot} shows the change in run-time for different heap settings relative to the minimal setting.
+The boxes capture the \num{25} and \num{75} percentiles as height and sampling size as width;
+whiskers correspond to the extreme values.
+The results show that performance is not affected very much by heap size.
+Following the line of medians,
+wall-clock time slightly increases above \SI{16}{\giga\byte}
+(where the \SI{64}{\bit} Poly/ML backend needs to be used, as the more efficient $64\_32$ mode does not allow more than \SI{16}{\giga\byte}),
+as well as for very large values.
+We observed a single outlier for \num{64} threads and \SI{128}{\giga\byte} heap memory
+at a relative factor of \num[round-mode=places,round-precision=2]{\heapOutlier}.
+\input{figures/heap_boxplot}
+
+\subsection{Influence of Hardware Characteristics}
+Based on folk knowledge about Isabelle performance,
+we suspected that cache size would be a major factor;
+it was debated whether boost clock speed would be relevant.
+To test the hypotheses, we analyzed the impact of size of the L3-cache, base clock speed, and maximal (boost) clock speed on Isabelle performance.
+Table \ref{tab:hardware_param_cor} shows the correlation between Isascore and those parameters (APA notation as explained in caption).
+At our significance level of $0.05$,
+we did not find cache size to impact performance significantly.
+Base frequency is weakly correlated with the Isascore for a single thread (though at the edge of significance) and a bit more strongly (and much more significantly) in the multi-threaded scenarios.
+Finally, boost frequency has a significant medium correlation for all modes,
+which is strongest in the single-threaded configuration with a value of \num[round-mode=places,round-precision=2]{\cpuSpecsMulTCor}.
+\input{tables/hardware_param_cor}
+A possible explanation is that boost frequency can  only be sustained for a single core in most CPUs,
+hence single-threaded performance profits from it a lot;
+in the multi-threaded scenario, the actual core frequency is much closer to the base frequency
+and thus its impact is larger.
+ 
+
+\subsection{Comparison to Computational Benchmarks}
+Performance benchmarks exist for many applications;
+additionally, synthetic benchmarks are often used to evaluate hardware performance.
+They can roughly be categorized into scientific computing versus consumer benchmarks. 
+In the following, we compare the results of our Isabelle community benchmark with a number of publicly available datasets for such benchmarks.
+
+\subsubsection{Benchmarks in High-Performance Computing}
+The first analysis we wish to conduct is a comparison of Isabelle performance with some scientific programs.
+For this analysis, we chose to import data from the High Performance Computing suite on OpenBenchmarking.
+We selected the three benchmarks that had the most public results available
+(in their primary configuration)
+at the time of writing: \emph{Himeno}, \emph{NAMD}, and \emph{Dolfyn}.
+Himeno\footnote{Results from \url{https://openbenchmarking.org/test/pts/himeno}} is an incompressible fluid analysis code written in Fortran and C~\cite{himeno}.
+While a distributed memory parallel version exists (using MPI with Fortran VPP),
+we concern ourselves with the sequential implementation.
+NAMD\footnote{Results from \url{https://openbenchmarking.org/test/pts/namd}} is a shared memory parallel molecular dynamics code based on C++ and Charm++~\cite{namd}.
+The data we use stems from machine-wide parallel trials.
+Finally, Dolfyn\footnote{Results from \url{https://openbenchmarking.org/test/pts/dolfyn}} is a sequential computational fluid dynamics code based on Fortran~\cite{dolfyn}.
+
+\input{figures/hpc_benchmarks}
+
+\autoref{fig:hpc_benchmarks} shows the results when correlating each of the HPC benchmarks with Isabelle performance.
+Himeno reports performance in terms of work done over time
+(where higher is better),
+while NAMD and Dolfyn measure time
+(per simulated \si{\nano\second}, and to solution;
+lower is better).
+For Himeno, we therefore compare against Isascore,
+while with NAMD and Dolfyn we compare against our observed wall clock time.
+
+NAMD, as the only benchmark of these three
+that scales well with parallel resources,
+has no significant correlation with single-threaded Isabelle time.
+However, it has a strong linear relation with multi-threaded time.
+The two less scalable benchmarks correlate much closer with Isabelle single-thread performance, where Dolfyn has a particularly nice correlation that holds well for the most performant processors.
+In both cases, correlation with multi-threaded Isabelle results is much worse
+($R^2$-values: Himeno \num[round-mode=places,round-precision=2]{\himenoMulTRSq}, Dolfyn \num[round-mode=places,round-precision=2]{\dolfynMulTRSq}).
+For both the Isabelle benchmark and Dolfyn,
+the top processor that was tested is the same
+(Intel i7-12700K),
+and on both benchmarks it has a margin on the runner-ups.
+This is also visible on the Himeno benchmark, where the 12700K produces the highest floating point throughput of all tested processors.
+However, it is not a highly parallel processor, which is why its NAMD results are less favorable.
+This again shows that Isabelle performance is significantly impacted by the single-thread performance of the underlying processor.
+
+\subsubsection{Consumer CPU Benchmarks}
+For our second comparison,
+we chose some of the most common consumer benchmarks to compare to:
+\emph{PassMark CPU Mark}\footnote{Results from  \url{https://www.cpubenchmark.net/CPU_mega_page.html}}, \emph{Geekbench 5}\footnote{Results from \url{https://browser.geekbench.com/processor-benchmarks.json}}, \emph{Cinebench R15}\footnote{Results from \url{https://us.rebusfarm.net/en/tempbench}}, and \emph{3DMark CPU Profile}\footnote{Results from \url{https://www.3dmark.com/search}, median over the top-\num{100} values}.
+For sequential performance,
+\autoref{fig:consumer_benchmarks} shows the scatter plots of Isascore to consumer benchmark scores,
+which are normalized to a $[0;1]$ range so the plots can be compared against.
+A strong positive relationship can be observed for all benchmarks,
+with $R^2$-values in the range \numrange[round-mode=places,round-precision=2]{\cinebenchOneTRSq}{\passmarkOneTRSq}.
+A few moderate outliers are present (possibly due to system configuration).
+All in all, the Isabelle benchmark seems quite similar to those consumer benchmarks for a single thread.
+\input{figures/consumer_benchmarks}
+
+This gives rise to prediction of Isabelle performance,
+which would allow one to judge hardware on which Isabelle was not executed before.
+However, single-threaded results are not meaningful for real-world performance,
+and scaling them to according to the average parallel efficiency did not yield helpful results
+($R^2$-values: Cinebench \num[round-mode=places,round-precision=2]{\cinebenchMulTRSq}, Geekbench \num[round-mode=places,round-precision=2]{\geekbenchMulTRSq}, PassMark \num[round-mode=places,round-precision=2]{\passmarkMulTRSq}, 3DMark \num[round-mode=places,round-precision=2]{\xdmarkMulTRSq}).
+Not many datasets for consumer benchmarks report on results for different number of threads,
+most report only a single \enquote{multi-core} value where all threads are utilized.
+An exception to that is the 3DMark CPU Profile benchmark,
+where results are reported for \numrange{1}{16} threads individually
+(in steps by power of two).
+This allows us to create a better correlation, because all consumer benchmarks tested had a far better parallel efficiency in the limit
+and were hence not suited for direct prediction.
+
+When using \num{8} and \num{16} threads in both the 3DMark and Isabelle benchmark,
+score and Isascore are strongly to moderately correlated and have individual $R^2$-values of \num[round-mode=places,round-precision=2]{\xdmarkEightTRSq} and \num[round-mode=places,round-precision=2]{\xdmarkSixteenTRSq}, respectively.
+This makes the 3DMark well suited for performance prediction.
+Since the optimal number of threads is in between,
+we use the average of its \num{8}-thread and \num{16}-thread results
+to create a linear model for performance prediction
+(tuning for a non-uniform split did not yield better results).
+Using ten times ten-fold cross-validation with a $70/30$ train-test split,
+the linear regression has an average $R^2$-value of \num[round-mode=places,round-precision=2]{\modelRSq}.
+\autoref{fig:predictor} shows the final model ($R^2=\num[round-mode=places,round-precision=2]{\modelFinalRSq}$) and the resulting predictor for wall-clock time, which has a mean absolute error (MAE) of \SI[round-mode=places,round-precision=1]{\modelFinalTimeMae}{\second}.
+However, that error is somewhat exaggerated by the data collection method:
+The public 3DMark data only shows only the top-$100$ results, from which we use the median values.
+The regression improves slightly when the
+(non-public) true medians are used,
+and the MAE decreases to \SI[round-mode=places,round-precision=1]{\modelPrivateFinalTimeMae}{\second}.
+\input{figures/predictor}
+The residual plot displayed in \autoref{fig:predictor_residual} has no noticeable patterns
+and the residual distribution roughly follows a normal distribution.
+All in all, the model simplicity and good fit
+indicate that this linear model is quite well suited for performance prediction,
+as long as the other system parameters are kept within reasonable bounds
+and the configuration is well tuned.
+\input{figures/predictor_residual}

@@ -1,0 +1,31 @@
+% !TeX root = ../main.tex
+
+\begin{abstract}
+Choosing hardware for theorem proving is no simple task:
+automated provers are highly complex and optimized programs,
+often utilizing a parallel computation model,
+and there is little prior research on the hardware impact on prover performance.
+To alleviate the problem for Isabelle,
+we initiated a community benchmark where the build time of HOL-Analysis is measured.
+On \num{\numCpus} distinct CPUs,
+a total of \num{\numRuns} runs with different Isabelle configurations were reported by Isabelle users.
+Results range from \SI{\bestTime}{\second} to over \SI[round-mode=places,round-precision=0]{\worstTimeH}{\hour}.
+We found that current consumer CPUs performed best,
+with an optimal number of \numrange{8}{16} threads,
+largely independent of heap memory.
+As for hardware parameters,
+CPU base clock affected multi-threaded execution most with a linear correlation of \baseFreqMulTCor,
+whereas boost frequency was the most influential parameter for single-threaded runs (correlation coefficient \boostFreqOneTCor);
+cache size played no significant role.
+When comparing our benchmark scores with popular high-performance computing benchmarks,
+we found a strong linear relationship with Dolfyn
+($R^2=\num[round-mode=places,round-precision=2]{\dolfynOneTRSq}$)
+in the single-threaded scenario.
+Using data from the 3DMark CPU Profile consumer benchmark,
+we created a linear model for optimal (multi-threaded) Isabelle performance.
+When validating,
+the model has an average $R^2$-score of \num[round-mode=places,round-precision=2]{\modelRSq};
+the mean absolute error in the final model corresponds to a wall-clock time of \SI[round-mode=places,round-precision=1]{\modelFinalTimeMae}{\second}.
+With a data set of true median values for the 3DMark,
+the error improves to \SI[round-mode=places,round-precision=1]{\modelPrivateFinalTimeMae}{\second}.
+\end{abstract}

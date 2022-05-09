@@ -1,0 +1,46 @@
+% !TeX root = ../main.tex
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    /pgfplots/scale only axis,
+    /pgfplots/width=6cm,
+    /pgfplots/height=4cm
+]
+\begin{axis}[
+  name=main axis,
+  ylabel={Isascore Residuals},
+  xlabel={3DMark CPU Profile score},
+  xmin=0,
+  xmax=9900,
+  ymax=200,
+  ymin=-200,
+]
+  \addplot[
+    only marks,
+    opacity=0.5,
+  ] table [
+    col sep=comma,
+    x=score,
+    y=residual,
+  ] {x3dmark_mt_residuals.csv};
+  \draw[thick] (rel axis cs:0,0.5) -- (rel axis cs:1,0.5);
+\end{axis}
+
+\begin{axis}[
+    anchor=north west,
+    at=(main axis.north east),
+    width=2cm,
+    ytick=\empty
+]
+\addplot [
+    hist={bins=13,handler/.style={xbar interval}},
+    x filter/.code=\pgfmathparse{rawy},
+    y filter/.code=\pgfmathparse{rawx},
+    fill=gray!50,
+] table [col sep=comma] {x3dmark_mt_residuals.csv};
+\end{axis}
+\end{tikzpicture}
+  \caption{Residual plot for final linear model, with histogram. The residuals show no apparent patterns and roughly follow a normal distribution.}
+  \label{fig:predictor_residual}
+\end{figure}

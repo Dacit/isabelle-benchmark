@@ -1,0 +1,17 @@
+% !TeX root = ../main.tex
+
+
+\DTLloaddb{topcpus}{top_cpus.csv}
+
+\begin{table}[htbp]
+  \caption{The five processors with the lowest time to solution, using each processor's optimal configuration (median value taken for multiple runs).}
+  \label{tab:top_5_cpus}
+  \begin{tabular}{lr}\toprule
+    \textbf{Processor Model} & \textbf{Wall-Clock Time}
+    \DTLforeach*{topcpus}{\cpu=cpu,\time=time}{
+        \DTLiffirstrow{\\\cmidrule{1-2}}{\\}
+        \cpu & \SI{\time}{\second}
+    }
+    \\\bottomrule
+  \end{tabular}
+\end{table}

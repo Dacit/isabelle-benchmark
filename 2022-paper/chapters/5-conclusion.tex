@@ -1,0 +1,21 @@
+\section{Conclusion}\label{sec:conclusion}
+This work resolves our questions on Isabelle performance for the 2021-1 version.
+The Isabelle community benchmark that we initiated saw lively participation
+and hundreds of results were reported for a total of \num{\numCpus} distinct CPUs.
+The results form a solid data base for tuning of Isabelle configuration;
+when not constrained, the optimal configuration is at \numrange{8}{16} threads with \SI{16}{\giga\byte} heap memory for both the Java and ML process
+(at least for HOL-Analysis, larger sessions might require more).
+
+When buying new hardware,
+the benchmark results give a good indication of which processor is desirable for Isabelle.
+Individual CPU parameters are not as important
+as clock speeds are only correlated with medium strength (though boost clock more than base clock)
+and cache size not significantly at all.
+Instead, for hardware that has not yet been tested with Isabelle,
+other benchmarks can greatly help in judging performance:
+While the single-threaded Isabelle benchmark score is strongly correlated with many benchmarks
+(most strongly with the Dolfyn high-performance benchmark and the PassMark CPU Mark),
+the multi-threaded scenario was more difficult to model;
+In the end, we found a good predictor by using 3DMark CPU Profile scores from \num{8} and \num{16} threads,
+with a final mean absolute error of \SI[round-mode=places,round-precision=2]{\modelFinalTimeMae}{\second}.
+The model has a good fit, and one can assume that it is fairly future-proof given that hardware from the last ten years is properly predicted.

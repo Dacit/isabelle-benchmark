@@ -1,0 +1,66 @@
+% !TeX root = ../main.tex
+
+\section{Introduction}
+Choosing appropriate hardware and tuning configuration parameters
+is a common task when one wants to run software optimally.
+For a complex and truly parallel interactive proof assistant such as Isabelle,
+many factors influence run-time performance:
+The prover needs a Java and a Meta Language (ML) run-time,
+the number of threads is variable,
+as is the amount of heap memory --
+which in turn 
+(in combination with the CPU architecture family)
+dictates which ML platform and hence Poly/ML backend may be used.
+On a hardware level, CPU specs, the memory hierarchy, and interconnects
+all influence how well the software components perform and how the system as a whole behaves.
+The parallel efficiency of Isabelle
+(i.e., the ratio of actual time versus sequential time divided by the number of parallel units)
+decays according to a non-linear characteristic~\cite{Parallel2009Wenzel}, as is the case in most parallel systems.
+As a result, there is no single hardware or software characteristic that dominates the observed performance behavior.
+
+In Isabelle,
+performance is important both in the interactive mode (such that processing changes and running solvers is faster)
+and in a batch build mode, where \emph{sessions} 
+(i.e., collections of formalizations) can be processed.
+Independent sessions can even be run in parallel with multiple ML processes.
+
+However, making informed decisions on hardware is no trivial task.
+Members of the Isabelle community have to rely on word of mouth to determine which processors and memory to use,
+and configuration parameters
+(such as the number of threads or heap sizes)
+are largely folk knowledge
+-- backed by experience collected over the years, ad-hoc experiments, and sometimes intuition.
+While there is some performance data available,
+it is not helpful in that regard as it only covers a very small number of machines.
+
+% problem
+With new and exciting hardware being developed at a fast pace,
+one can often be overwhelmed by the sheer variety of hardware options available.
+Hence, the question of which hardware to recommend for Isabelle can often not be answered exhaustively or satisfactory.
+This is relevant both for individuals working with Isabelle,
+and for the larger-scale server infrastructure maintained for continuous integration and for Isabelle and the Archive of Formal Proofs.
+
+% solution
+To alleviate this problem,
+a solid data base with performance benchmark results
+for a wide variety of involved hardware and configurations
+is needed.
+Not only would that directly answer the question of optimal configurations for a given system
+and allow one to compare the hardware on the market,
+but such a collection of data
+(if large enough, and kept up to date)
+would also allow one to predict performance of other hardware for which no Isabelle data is available yet.
+
+% contribution
+In this paper,
+we outline our Isabelle community benchmark,
+discuss the immediate results and findings,
+and derive a model to predict the Isabelle performance of unknown CPUs
+with the help of widely used benchmarks for which more data is retrievable.
+Our source-code data and is made available publicly\footnote{\texttt{2022-paper} folder in \url{https://isabelle.systems/benchmark}}.
+% Organization
+Section~\ref{sec:related} covers related work;
+we explain our benchmark set-up in Section~\ref{sec:benchmark},
+and discuss the results in Section~\ref{sec:results}.
+In Section~\ref{sec:conclusion},
+we conclude and discuss future work.

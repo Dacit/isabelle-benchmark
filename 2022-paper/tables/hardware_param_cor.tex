@@ -1,0 +1,19 @@
+% !TeX root = ../main.tex
+
+
+\DTLloaddb{cpuspecscor}{cpu_specs_cor.csv}
+
+\begin{table}[htbp]
+  \caption{Pearson correlation of hardware parameters with Isascore in APA notation: degrees of freedom 
+(number of observations minus two),
+$r$ (strength) and $p$ (significance). Cache size is left out as there is no significant correlation.}
+  \label{tab:hardware_param_cor}
+  \begin{tabular}{rll}\toprule
+    \textbf{Mode} & \textbf{Base Frequency} & \textbf{Maximum Boost Frequency}
+    \DTLforeach*{cpuspecscor}{\threads=threads,\corbase=corbase,\pbase=pbase,\nbase=nbase,\cormax=cormax,\pmax=pmax,\nmax=nmax}{
+        \DTLiffirstrow{\\\cmidrule{1-3}}{\\}
+        \threads & \ifdefempty\nbase{}{\cor{\nbase}{\corbase}{\pbase}} & \ifdefempty\nmax{}{\cor{\nmax}{\cormax}{\pmax}}
+    }
+    \\\bottomrule
+  \end{tabular}
+\end{table}

@@ -1,0 +1,65 @@
+% !TeX root = ../main.tex
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={
+    group name=threads,
+    group size=2 by 1,
+    x descriptions at=edge bottom,
+    y descriptions at=edge left,
+    horizontal sep=56pt,
+  },
+  width=0.48\textwidth,
+  height=192pt,
+]
+  \nextgroupplot[
+  xlabel={Averaged \num{8}/\num{16}-Thread 3DMark CPU Profile Score},
+  every axis x label/.append style={at=(ticklabel cs:1.0)},
+  ylabel={Isascore},
+  ymin=0,
+  xmin=0,
+  xmax=9900,
+  legend style={at={(0.98,0.02)},anchor=south east},
+  domain=0:11000,
+  ]
+  \addplot[
+    only marks,
+    opacity=0.5,
+    forget plot
+  ] table [
+    col sep=comma,
+    x=score,
+    y=isascore,
+  ] {x3dmark_mt.csv};
+  \addplot[thick] {\modelAX*x+\modelB};
+  \node[anchor=north west] at (rel axis cs:0.05,0.95) {$R^2=\num[round-mode=places,round-precision=2]{\modelFinalRSq}$};
+  \addlegendentry{%
+$\num[round-mode=places,round-precision=1]{\modelB}+\num[round-mode=places,round-precision=3]{\modelAX}\cdot x$};
+  \nextgroupplot[
+    ylabel={Wall Clock Time},
+    ytick distance=180,
+    y unit=\si{\second},
+    ymin=0,
+    ymax=1080,
+    yticklabel={\pgfmathparse{int(\tick/60)/100}\pgfmathprintnumber[skip 0.=true, dec sep={}, fixed,precision=2,zerofill]{\pgfmathresult}:\pgfmathprintnumber[skip 0.=true, dec sep={}, fixed,precision=2,zerofill]{0.0}},
+    xmax=9900,
+    xmin=0,
+    domain=0:11000,
+  ]
+  \addplot[
+    only marks,
+    opacity=0.5,
+  ] table [
+    col sep=comma,
+    x=score,
+    y=time,
+  ] {x3dmark_mt.csv};
+  \node[anchor=north east] at (rel axis cs:0.95,0.95) {$\text{MAE}=\SI[round-mode=places,round-precision=1]{\modelFinalTimeMae}{\second}$};
+  \addplot[thick, samples=1000] {(24*60*60) / ((\modelAX*x)+\modelB)};
+\end{groupplot}
+\end{tikzpicture}
+  \caption{Scatter plots for final model of Isabelle performance. Linear model on Isascore on the left, corresponding wall clock run-times on the right.}
+  \label{fig:predictor}
+\end{figure}

@@ -1,0 +1,108 @@
+% !TeX root = ../main.tex
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={
+    group name=hpcbenchmarks,
+    group size=3 by 1,
+    x descriptions at=edge bottom,
+    y descriptions at=edge left,
+    horizontal sep=55pt,
+    every plot/.style={
+    ymin=0,
+    xmin=0,
+    width=0.31\textwidth,
+    height=192pt,
+    }
+  },
+]
+
+% himeno
+\nextgroupplot[
+   ylabel={Isascore (Single-threaded)},
+   xlabel={MFLOPS},
+   xmax=9900,
+   xticklabel={\pgfmathprintnumber{\tick}},
+   xtick distance=3000,
+  ]
+  \addplot[
+    only marks,
+    opacity=0.5,
+  ] table [
+    col sep=comma,
+    x=score,
+    y=isascore,
+  ] {himeno_1t.csv};
+  \addplot [
+    thick,
+  ] table [
+    col sep=comma,
+    x=score,
+    y={create col/linear regression={x=score,y=isascore}},
+  ] {himeno_1t.csv};
+  \node[anchor=north east] at (rel axis cs:0.75,0.95) {$R^2=\num[round-mode=places,round-precision=2]{\himenoOneTRSq}$};
+  
+% dolfyn
+\nextgroupplot[
+    ylabel={Wall-Clock Time (Single-threaded)},
+      y unit={\si{\minute}},
+      ytick distance=720,
+      ymin=0,
+      yticklabel={\pgfmathparse{int(\tick/60)/100}\pgfmathprintnumber[skip 0.=true, dec sep={}, fixed,precision=2,zerofill]{\pgfmathresult}:\pgfmathprintnumber[skip 0.=true, dec sep={}, fixed,precision=2,zerofill]{0.0}},
+        x unit={\si{\second}},
+    xlabel={Execution Time},
+    xticklabel={\pgfmathprintnumber{\tick}},
+  ]
+  \addplot[
+    only marks,
+    opacity=0.5,
+  ] table [
+    col sep=comma,
+    x=score,
+    y=time
+  ] {dolfyn_1t.csv};
+  \addplot [
+    thick,
+  ] table [
+    col sep=comma,
+    x=score,
+    y={create col/linear regression={x=score,y=time}},
+  ] {dolfyn_1t.csv};
+  \node[anchor=north east] at (rel axis cs:0.75,0.95) {$R^2=\num[round-mode=places,round-precision=2]{\dolfynOneTRSq}$};
+  
+% NAMD vs mult-isabelle
+\nextgroupplot[
+ylabel={Wall-Clock Time (Multi-threaded)},
+      y unit={\si{\minute}},
+      ytick distance=360,
+      ymin=0,
+      yticklabel={\pgfmathparse{int(\tick/60)/100}\pgfmathprintnumber[skip 0.=true, dec sep={}, fixed,precision=2,zerofill]{\pgfmathresult}:\pgfmathprintnumber[skip 0.=true, dec sep={}, fixed,precision=2,zerofill]{0.0}},
+    xlabel={Time per Simulated \si{\nano\second}},
+    x unit=\si{\day},
+  ]
+\addplot[
+    only marks,
+    opacity=0.5,
+  ] table [
+    col sep=comma,
+    x=score,
+    y=time,
+  ] {namd_mt.csv};
+  \addplot [
+    thick,
+  ] table [
+    col sep=comma,
+    x=score,
+    y={create col/linear regression={x=score,y=time}},
+  ] {namd_mt.csv};
+  \node[anchor=north east] at (rel axis cs:0.75,0.95) {$R^2=\num[round-mode=places,round-precision=2]{\namdMulTRSq}$};
+\end{groupplot}
+\node[above = 0.0cm of hpcbenchmarks c1r1.north] {Himeno};
+\node[above = 0.0cm of hpcbenchmarks c2r1.north] {Dolfyn};
+\node[above = 0.0cm of hpcbenchmarks c3r1.north] {NAMD};
+\end{tikzpicture}
+  \caption{Comparison of single-threaded (Himeno and Dolfyn) and multi-threaded (NAMD) Isabelle results with different high-performance computing benchmarks, with linear regression line.}
+  \label{fig:hpc_benchmarks}
+\end{figure}

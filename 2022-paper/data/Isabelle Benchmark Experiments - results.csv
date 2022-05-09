@@ -1,0 +1,71 @@
+,status,Passmark 1T,Passmark MT,3DMark CPU Profile 1T,Geekbench 1T,Geekbench MT,Cinebench R15 1T,Cinebench R15 MT,3DMark CPU Profile 4T,3DMark CPU Profile 8T,3DMark CPU Profile 16T,3DMark CPU Profile MT,Himeno,NAMD,Dolfyn,Cores,Threads,Cache,Base Freq,Max Freq,HT
+11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz,OK,2730,10156,,,,,,,,,,,,,4,8,8000,2400,4200,TRUE
+11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz,BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz,OK,3141,21583,,,,,,,,,,,,,8,16,24000,2300,4600,TRUE
+11th Gen Intel(R) Core(TM) i7-1185G7 @ 3.00GHz,OK,2921,11036,,,,,,,,,,,,,4,8,12000,3000,4800,TRUE
+12th Gen Intel(R) Core(TM) i7-12700K,OK,4022,33577,,,,,,,,,,,,,12,20,25000,3600,5000,TRUE
+12th Gen Intel(R) Core(TM) i7-12700K w/o HT,BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+2x AMD EPYC 7742 64-Core Processor,BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+2x AMD EPYC 7742 64-Core Processor w/ NUMA,BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+AMD EPYC 7601 32-Core Processor,OK,,,,,,,,,,,,,,,32,64,64000,2200,3200,TRUE
+AMD EPYC 7702 64-Core Processor,OK,2098,71677,,,,,,,,,,,,,64,128,256000,2000,3350,TRUE
+AMD EPYC 7702P 64-Core Processor (VM slice),BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+AMD Ryzen 5 2600 Six-Core Processor,OK,2250,13194,,,,,,,,,,,,,6,12,16000,3400,3900,TRUE
+AMD Ryzen 5 3600 6-Core Processor,OK,2578,17829,,,,,,,,,,,,,6,12,32000,3600,4200,TRUE
+AMD Ryzen 5 4500U with Radeon Graphics,OK,2458,11137,,,,,,,,,,,,,6,6,8000,2300,4000,FALSE
+AMD Ryzen 5 5600X 6-Core Processor,OK,3381,22136,,,,,,,,,,,,,6,12,32000,3700,4600,TRUE
+AMD Ryzen 5 5600X 6-Core Processor (Silent Mode),BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+AMD Ryzen 7 4800H with Radeon Graphics,OK,2642,19079,,,,,,,,,,,,,8,16,8000,2900,4200,TRUE
+AMD Ryzen 7 PRO 5850U with Radeon Graphics (Screen 1080p),BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+AMD Ryzen 7 PRO 5850U with Radeon Graphics (Screen 2160p),BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+AMD Ryzen 9 3900X 12-Core Processor,OK,2727,32780,,,,,,,,,,,,,12,24,64000,3800,4600,TRUE
+AMD Ryzen 9 5900X 12-Core Processor,OK,3495,39490,,,,,,,,,,,,,12,24,64000,3700,4800,TRUE
+AMD Ryzen 9 5950X 16-Core Processor (OC),BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+AMD Ryzen Threadripper 2950X 16-Core Processor,OK,2483,29908,,,,,,,,,,,,,16,32,32000,3500,4400,TRUE
+AMD Ryzen Threadripper 2990WX 32-Core Processor,OK,2301,32321,,,,,,,,,,,,,32,64,64000,3000,4200,TRUE
+Apple M1 (using Rosetta Emulation),OK,3773,15109,,,,,,,,,,,,,8,8,16000,2100,3200,FALSE
+Apple M1 in docker (aarch64),BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+Apple M1 Pro,OK,3858,23553,,,,,,,,,,,,,10,10,24000,2100,3200,FALSE
+Apple M1 Pro (native arm64),OK,3858,23553,,,,,,,,,,,,,10,10,24000,2100,3200,FALSE
+Fujitsu A64FX,OK,,,,,,,,,,,,,,,48,48,,2000,2000,FALSE
+Intel(R) Core(TM) i5-5250U CPU @ 1.60GHz,BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+Intel(R) Core(TM) i5-5300U CPU @ 2.30GHz,OK,1645,2736,,,,,,,,,,,,,2,4,3000,2300,2900,TRUE
+Intel(R) Core(TM) i5-6200U CPU @ 2.30GHz,OK,1588,3025,,,,,,,,,,,,,2,4,3000,2300,2800,TRUE
+Intel(R) Core(TM) i5-6600K CPU @ 3.50GHz,OK,2331,6304,,,,,,,,,,,,,4,4,6000,3500,3900,FALSE
+Intel(R) Core(TM) i5-6600K CPU @ 4.50GHz,BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+Intel(R) Core(TM) i5-7600K CPU @ 3.80GHz,OK,2561,6859,,,,,,,,,,,,,4,4,6000,3800,4200,FALSE
+Intel(R) Core(TM) i5-8259U CPU @ 2.30GHz,OK,2246,8136,,,,,,,,,,,,,4,8,6000,2300,3800,TRUE
+Intel(R) Core(TM) i7-10875H CPU @ 2.30GHz,OK,2788,15502,,,,,,,,,,,,,8,16,16000,2300,5100,TRUE
+Intel(R) Core(TM) i7-10875H CPU @ 2.30GHz w/o HT,BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+Intel(R) Core(TM) i7-3960X CPU @ 3.30GHz,OK,1819,8605,,,,,,,,,,,,,6,12,15000,3300,3900,TRUE
+Intel(R) Core(TM) i7-4770 CPU @ 3.40GHz,OK,2167,7027,,,,,,,,,,,,,4,8,8000,3400,3900,TRUE
+Intel(R) Core(TM) i7-4790 CPU @ 3.60GHz,OK,2233,7232,,,,,,,,,,,,,4,8,8000,3600,4000,TRUE
+Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz,OK,2303,8069,,,,,,,,,,,,,4,8,8000,3400,4000,TRUE
+Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz,OK,2070,6955,,,,,,,,,,,,,4,8,6000,2800,3800,TRUE
+Intel(R) Core(TM) i7-7820HQ CPU @ 2.90GHz,OK,2129,7171,,,,,,,,,,,,,4,8,8000,2900,3900,TRUE
+Intel(R) Core(TM) i7-7920HQ CPU @ 3.10GHz,OK,2206,7450,,,,,,,,,,,,,4,8,8000,3100,4100,TRUE
+Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz,OK,2069,5948,,,,,,,,,,,,,4,8,8000,1800,4000,TRUE
+Intel(R) Core(TM) i7-8559U CPU @ 2.70GHz,OK,2557,8727,,,,,,,,,,,,,4,8,8000,2700,4500,TRUE
+Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz,OK,2247,6355,,,,,,,,,,,,,4,8,8000,1800,4600,TRUE
+Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz,OK,2332,10095,,,,,,,,,,,,,6,12,9000,2200,4100,TRUE
+Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz,OK,2902,14551,,,,,,,,,,,,,8,8,12000,3600,4900,FALSE
+Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz (turbo 4.90 GHz),BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz,OK,2488,11218,,,,,,,,,,,,,6,12,12000,2600,4500,TRUE
+Intel(R) Core(TM) i9-10850K CPU @ 3.60GHz,OK,3094,23200,,,,,,,,,,,,,10,20,20000,3600,5200,TRUE
+Intel(R) Core(TM) i9-10850K CPU @ 3.60GHz w/o HT,BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+Intel(R) Core(TM) i9-10900 CPU @ 2.80GHz,OK,3066,20519,,,,,,,,,,,,,10,20,20000,2800,5200,TRUE
+Intel(R) Core(TM) i9-10900 CPU @ 2.80GHz w/o HT,BLACKLISTED,,,,,,,,,,,,,,,,,,,,
+Intel(R) Core(TM) i9-10910 CPU @ 3.60GHz,OK,3115,21504,,,,,,,,,,,,,10,20,20000,3600,5000,TRUE
+Intel(R) Core(TM) i9-8950HK CPU @ 2.90GHz,OK,2483,10800,,,,,,,,,,,,,6,12,12000,2900,4800,TRUE
+Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz,OK,2558,14026,,,,,,,,,,,,,8,16,16000,2300,4800,TRUE
+Intel(R) Core(TM) i9-9900 CPU @ 3.10GHz,OK,2871,16964,,,,,,,,,,,,,8,16,16000,3100,5000,TRUE
+Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz,OK,2963,18759,,,,,,,,,,,,,8,16,16000,3600,5000,TRUE
+Intel(R) Core(TM) i9-9980HK CPU @ 2.40GHz,OK,2627,14795,,,,,,,,,,,,,8,16,16000,2400,5000,TRUE
+Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz,OK,1950,24415,,,,,,,,,,,,,22,44,55000,2200,3600,TRUE
+Intel(R) Xeon(R) Gold 6144 CPU @ 3.50GHz,OK,2523,18656,,,,,,,,,,,,,8,16,24750,3500,4200,TRUE
+Intel(R) Xeon(R) Gold 6240R CPU @ 2.40GHz,OK,,,,,,,,,,,,,,,24,48,35750,2400,4000,TRUE
+Intel(R) Xeon(R) Platinum 8360H CPU @ 3.00GHz,OK,,,,,,,,,,,,,,,24,48,33000,3000,4200,TRUE
+Intel(R) Xeon(R) Platinum 8360Y CPU @ 2.40GHz,OK,,,,,,,,,,,,,,,36,72,54000,2400,3500,TRUE
+Intel(R) Xeon(R) Platinum 8380 CPU @ 2.30GHz,OK,2385,62317,,,,,,,,,,,,,40,80,60000,2300,3400,TRUE
+Intel(R) Xeon(R) Silver 4116 CPU @ 2.10GHz,OK,1709,14931,,,,,,,,,,,,,12,24,16500,2100,3000,TRUE
+Intel(R) Xeon(R) W-2140B CPU @ 3.20GHz,OK,2561,17549,,,,,,,,,,,,,8,16,20000,3200,4200,TRUE

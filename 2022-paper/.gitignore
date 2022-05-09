@@ -1,0 +1,17 @@
+.idea/
+.Rhistory
+/*.csv
+*.abs
+*.aux
+*.dvi
+*.log
+*.out
+*.out.ps
+*.synctex.gz
+*.xmpdata
+*.auxlock
+*.bbl
+*.blg
+data/data.tex
+main.pdf
+figures/cache

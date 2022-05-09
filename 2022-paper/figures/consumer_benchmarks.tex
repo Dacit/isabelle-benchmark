@@ -1,0 +1,104 @@
+% !TeX root = ../main.tex
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={
+    group name=benchmarks,
+    group size=2 by 2,
+    x descriptions at=edge bottom,
+    y descriptions at=edge left,
+    every plot/.style={
+      width=209pt,
+      height=192pt,
+      ymin=0,
+      ymax=170,
+      xmin=-0.05,
+      xmax=1.05,
+    }
+  },
+]
+\nextgroupplot
+  \addplot[
+    only marks,
+    opacity=0.5,
+    xlabel={Score},
+  ] table [
+    col sep=comma,
+    x=score,
+    y=isascore
+  ] {cinebench_1t_rel.csv};
+  \addplot [
+    thick,
+  ] table [
+    col sep=comma,
+    x=score,
+    y={create col/linear regression={x=score,y=isascore}}
+  ] {cinebench_1t_rel.csv};
+  \node[anchor=north west] at (rel axis cs:0.05,0.95) {$R^2=\num[round-mode=places,round-precision=2]{\cinebenchOneTRSq}$};
+\nextgroupplot
+  \addplot[
+    only marks,
+    opacity=0.5,
+  ] table [
+    col sep=comma,
+    x=score,
+    y=isascore,
+  ] {geekbench_1t_rel.csv};
+  \addplot [
+    thick,
+  ] table [
+    col sep=comma,
+    x=score,
+    y={create col/linear regression={x=score,y=isascore}}
+  ] {geekbench_1t_rel.csv};
+  \node[anchor=north west] at (rel axis cs:0.05,0.95) {$R^2=\num[round-mode=places,round-precision=2]{\geekbenchOneTRSq}$};
+\nextgroupplot[
+    xlabel={Normalized Score},
+    every axis x label/.append style={at=(ticklabel cs:1.1)},
+    ylabel={Isascore},
+    every axis y label/.append style={at=(ticklabel cs:1.1)},
+  ]
+  \addplot[
+    only marks,
+    opacity=0.5,
+  ] table [
+    col sep=comma,
+    x=score,
+    y=isascore,
+  ] {passmark_1t_rel.csv};
+  \addplot [
+    thick,
+  ] table [
+    col sep=comma,
+    x=score,
+    y={create col/linear regression={x=score,y=isascore}}
+  ] {passmark_1t_rel.csv};
+  \node[anchor=north west] at (rel axis cs:0.05,0.95) {$R^2=\num[round-mode=places,round-precision=2]{\passmarkOneTRSq}$};
+\nextgroupplot
+  \addplot[
+    only marks,
+    opacity=0.5,
+  ] table [
+    col sep=comma,
+    x=score,
+    y=isascore
+  ] {x3dmark_1t_rel.csv};
+  \addplot [
+    thick,
+  ] table [
+    col sep=comma,
+    x=score,
+    y={create col/linear regression={x=score,y=isascore}}
+  ] {x3dmark_1t_rel.csv};
+  \node[anchor=north west] at (rel axis cs:0.05,0.95) {$R^2=\num[round-mode=places,round-precision=2]{\xdmarkOneTRSq}$};
+\end{groupplot}
+\node[above = 0.0cm of benchmarks c1r1.north] {Cinebench R15};
+\node[above = 0.0cm of benchmarks c2r1.north] {Geekbench 5};
+\node[above = 0.0cm of benchmarks c1r2.north] {PassMark CPU Mark};
+\node[above = 0.0cm of benchmarks c2r2.north] {3DMark CPU Profile};
+\end{tikzpicture}
+  \caption{Comparison of single-threaded results with different consumer benchmarks, with linear regression line. Benchmark scores are normalized to $[0,1]$ range.}
+  \label{fig:consumer_benchmarks}
+\end{figure}

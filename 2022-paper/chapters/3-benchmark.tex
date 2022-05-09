@@ -1,0 +1,64 @@
+% !TeX root = ../main.tex
+
+\section{Benchmarking Methodology}\label{sec:benchmark}
+% setup
+The benchmark has to fulfill to multiple requirements:
+It needs to capture typical computations found in Isabelle
+--- mostly symbolic computation ---,
+have a reasonable run-time for the end user,
+and motivate users to want to see how their machines perform
+(i.e., results should be self-evident).
+We settled for a clean build of the HOL-Analysis session:
+It is a typical Isabelle formalization
+which runs in approximately five minutes on typical consumer machines.
+Many Isabelle users have likely run a similar workload for their own work in the past.
+
+While users can easily contribute results for their favourite Isabelle configuration,
+we supplied a small script to run a comparable set of configurations automatically
+\footnote{Documentation and code at \url{https://isabelle.systems/benchmark}}.
+This way,
+the whole benchmark can be run with a single command
+(assuming a working installation of Isabelle 2021-1)
+on any platform.
+We vary the underlying ML platform between $64\_32$ ($64$-bit mode with $32$-bit values) and true \num{64}-bit mode,
+heap sizes of both the ML and JVM process
+(set to the same value to reduce the number of linear combinations,
+as early benchmark results indicated they play only a minor role here),
+and the number of worker threads for parallel proof checking.
+
+Results are collected in a collaborative spreadsheet\footnote{\url{https://docs.google.com/spreadsheets/d/12GhEwSNSopowDBq5gSem3u39fliiIcoTIZHMnX4RE3A}}
+with automatically updated figures for fastest CPUs and parallel efficiency.
+% community
+The benchmark is not intended as one-shot experiment,
+but rather as a continuous community effort
+to maintain an overview over the Isabelle computing landscape as new hardware emerges.
+It is being kept open for new results, and will be maintained for future Isabelle versions.
+
+\subsection{Benchmark Score (Isascore)}
+For the benchmark results,
+we use the build time as an intuitive metric.
+Together with the well-known HOL-Analysis build target,
+the metric immediately gives a good understanding of Isabelle performance.
+However, it is not well suited to compare to other metrics such as throughput,
+because the relationship between time to solution and throughput is inverse.
+To still allow using simple linear models such as the Pearson correlation,
+we introduce a benchmark score that we call \emph{Isascore}.
+It reflects the number of HOL-Analysis runs one could complete in a day, i.e.:
+\begin{equation}
+    \text{Isascore}=\frac{\SI{1}{\day}}{\text{wall-clock time}}
+\end{equation}
+
+\subsection{Threats to Validity}
+The experiments discussed in this paper could not be performed in a controlled environment,
+since they were run by members of the Isabelle community rather than exclusively by the authors of this paper.
+This means that various outside factors may have influence on the reported results,
+though it seems reasonable to assume that those factors should usually be constant between different configurations of the same benchmark run.
+The effect of machine-local anomalies can be mitigated for hardware where we received several independent measurements by using statistical techniques.
+Furthermore,
+due to reasons of practicality in orchestrating data collection,
+extended system specifics beyond the CPU model, OS, and memory configuration were not recorded.
+There is a possibility that relevant parameters may have been missed.
+Therefore, like all performance benchmarks, these results represent upper bounds of what might be achieved with a given system configuration.
+Lastly,
+while the benchmark was posted on the Isabelle-users mailing list,
+in principle the data entry was open to public and could have been misused.

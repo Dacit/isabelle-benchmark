@@ -1,0 +1,16 @@
+\section{Future Work}\label{sec:future}
+
+If the Isabelle computation model does not change,
+there is not much left to be done on the topic of performance prediction:
+The benchmark from which Isabelle performance is predicted is widely popular and data for new hardware is usually quickly added,
+and the fit is about as good as one can hope for.
+Still, the model should be validated after a few years,
+and we are curious to see whether future hardware characteristics will be able to break the trend.
+
+One other aspect that we did not touch on is running multiple independent sessions in parallel,
+which is often possible on automated large-scale Isabelle builds, e.g., for the Archive of Formal Proofs.
+This can be done on multiple processes that run independently of each other and greatly increases the usefulness of larger server CPUs with many cores;
+then, other parameters such as memory bandwidth might be more important and have to be analyzed.
+However, given the large cost of such machines,
+it would be much more economical to instead distribute the build on multiple cheap but fast desktop CPUs
+(especially when latency is a concern, not throughput).

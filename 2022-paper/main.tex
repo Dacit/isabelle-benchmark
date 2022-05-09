@@ -1,0 +1,151 @@
+\documentclass[
+% twocolumn,
+% hf,
+]{ceurart}
+
+%%
+%% One can fix some overfulls
+% \sloppy
+
+\usepackage[binary-units=true]{siunitx}
+\usepackage{numprint}
+\usepackage{csvsimple}
+\usepackage{ifthen}
+\usepackage{datatool}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{csquotes}
+\usepgfplotslibrary{units}
+\usepgfplotslibrary{statistics}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{positioning}
+\pgfplotsset{compat=1.17}
+\usetikzlibrary{external}
+\tikzexternalize[prefix=figures/cache/]
+
+\usepackage{todonotes}
+
+% correlations n cor p
+\def\stripzero#1{\expandafter\stripzerohelp#1}
+\def\stripzerohelp#1{\ifx 0#1\expandafter\stripzerohelp\else#1\fi}
+\newcommand{\cor}[3]{\ifdim#3 pt<0.001 pt {$r(\pgfmathparse{int(#1-2)}\pgfmathresult)=\npdecimalsign{.}\npnoaddmissingzero\nprounddigits{2}\numprint{\stripzero{#2}}$, $p<.001$}\else {$r(\pgfmathparse{int(#1-2)}\pgfmathresult)=\npdecimalsign{.}\npnoaddmissingzero\nprounddigits{2}\numprint{\stripzero{#2}}$,  $p=\npdecimalsign{.}\npnoaddmissingzero\nprounddigits{3}\numprint{\stripzero{#3}}$}\fi{}}
+
+% Patch todonotes package because tikz externalization is not compatible
+% See https://tex.stackexchange.com/questions/42486/todonotes-and-tikzexternalize
+\makeatletter
+\renewcommand{\todo}[2][]{\tikzexternaldisable\@todo[#1]{#2}\tikzexternalenable}
+\makeatother
+
+%prevent overflowing URLs; suggested by Franck in
+% https://tex.stackexchange.com/questions/636114/how-can-i-prevent-urls-in-an-eprint-field-from-overflowing-in-the-references-i/636172#636172
+\def\UrlBreaks{\do\/\do-}
+\hypersetup{breaklinks=true}
+\urlstyle{same}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\input{data/data}
+\begin{document}
+
+%
+% pgf preamble
+\pgfplotsset{
+    discard if not/.style 2 args={
+        x filter/.code={
+            \edef\tempa{\thisrow{#1}}
+            \edef\tempb{#2}
+            \ifx\tempa\tempb
+            \else
+                \def\pgfmathresult{inf}
+            \fi
+        }
+    }
+}
+\makeatletter
+\pgfplotstableset{
+    discard if not/.style 2 args={
+        row predicate/.code={
+            \def\pgfplotstable@loc@TMPd{\pgfplotstablegetelem{##1}{#1}\of}
+            \expandafter\pgfplotstable@loc@TMPd\pgfplotstablename
+            \edef\tempa{\pgfplotsretval}
+            \edef\tempb{#2}
+            \ifx\tempa\tempb
+            \else
+                \pgfplotstableuserowfalse
+            \fi
+        }
+    }
+}
+\makeatother
+
+
+%%
+%% Rights management information.
+%% CC-BY is default license.
+\copyrightyear{2022}
+\copyrightclause{Copyright for this paper by its authors.
+  Use permitted under Creative Commons License Attribution 4.0
+  International (CC BY 4.0).}
+
+%%
+%% This command is for the conference information
+\conference{PAAR'22: 8th Workshop on Practical Aspects of Automated Reasoning, August 11--12, 2022, Haifa, Israel}
+
+%%
+%% The "title" command
+\title{The Isabelle Community Benchmark}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+\author{Fabian Huch}[%
+orcid=0000-0002-9418-1580,
+email=huch@in.tum.de,
+url=https://home.in.tum.de/~huch,
+]
+
+\author{Vincent Bode}[
+email=vincent.bode@tum.de,
+orcid=0000-0003-2353-389X, 
+url=https://home.in.tum.de/~bodev
+]
+
+\address{Technische Universität München, Boltzmannstraße 3, 85748 Garching, Germany}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\input{chapters/0-abstract}
+
+%%
+%% Keywords. The author(s) should pick words that accurately describe
+%% the work being presented. Separate the keywords with commas.
+\begin{keywords}
+  Isabelle \sep
+  theorem proving\sep
+  user benchmark\sep
+  run-time performance\sep
+  performance prediction
+\end{keywords}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\input{chapters/1-introduction}
+\input{chapters/2-related}
+\input{chapters/3-benchmark}
+\input{chapters/4-results}
+\input{chapters/5-conclusion}
+\input{chapters/6-future}
+
+\begin{acknowledgments}
+Thanks to all the countless individuals who participated in the benchmark. Parts of the performance results have been obtained on systems in the test environment BEAST (Bavarian Energy Architecture \& Software Testbed) at the Leibniz Supercomputing Centre. NAMD was developed by the Theoretical and Computational Biophysics Group in the Beckman Institute for Advanced Science and Technology at the University of Illinois at Urbana-Champaign.
+Many thanks to Phoronix Media (OpenBenchmarking), PassMark Software (PassMark), RebusFarm GmbH (Cinebench), Primate Labs Inc. (Geekbench) and especially UL Benchmarks (3DMark), for providing their benchmark data.
+\end{acknowledgments}
+
+\Urlmuskip=0mu plus 1mu\relax
+\bibliography{bibliography}
+
+\end{document}

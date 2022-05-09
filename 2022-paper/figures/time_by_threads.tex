@@ -1,0 +1,74 @@
+% !TeX root = ../main.tex
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}
+    \begin{groupplot}[
+      group style={
+        group name=timebythreads,
+        group size=2 by 1,
+        x descriptions at=edge bottom,
+        y descriptions at=edge left,
+        horizontal sep=0,
+      },
+      width=0.5\textwidth,
+      height=192pt,
+    ]
+    \nextgroupplot[
+      xmode=log,
+      xtick={1,2,4,8,16,32,64,128},
+      xlabel={Thread Count (log scale)},
+      every axis x label/.append style={at=(ticklabel cs:1.0)},
+      x label/.append style={at=(ticklabel cs:1.0)},
+      log ticks with fixed point,
+      ylabel={Wall-Clock Time},
+      y unit={\si{\minute}},
+      ytick distance=480,
+      ymax=3540,
+      ymin=0,
+      yticklabel={\pgfmathparse{int(\tick/60)/100}\pgfmathprintnumber[skip 0.=true, dec sep={}, fixed,precision=2,zerofill]{\pgfmathresult}:\pgfmathprintnumber[skip 0.=true, dec sep={}, fixed,precision=2,zerofill]{0.0}},
+    ]
+    \foreach \cpu in \cpus {
+    	\addplot[
+    	  discard if not={cpu}{\cpu},
+          color=black,
+          mark=*,
+          mark options={color=black,fill=white,scale=1,opacity=0.9},
+          opacity=0.5
+        ] table [
+          col sep=comma,
+          x=threads,
+          y=time
+        ] {time_by_threads.csv};
+    }
+    \nextgroupplot[
+      xmode=log,
+      xtick={1,2,4,8,16,32,64,128},
+      log ticks with fixed point,
+      ylabel={CPU Time per Thread},
+      yticklabel pos=right,
+      ylabel near ticks,
+      ytick distance=480,
+      y unit={\si{\minute}},
+      ymax=3540,
+      ymin=0,
+      yticklabel={\pgfmathparse{int(\tick/60)/100}\pgfmathprintnumber[skip 0.=true, dec sep={}, fixed,precision=2,zerofill]{\pgfmathresult}:\pgfmathprintnumber[skip 0.=true, dec sep={}, fixed,precision=2,zerofill]{0.0}},
+    ]
+    \foreach \cpu in \cpus {
+    	\addplot[
+          discard if not={cpu}{\cpu},
+          color=black,
+          mark=*,
+          mark options={color=black,fill=white,scale=1,opacity=0.9},
+          opacity=0.5
+        ] table [
+          col sep=comma,
+          x=threads,
+          y=cputime
+        ] {cputime_by_threads.csv};
+    }
+    \end{groupplot}
+    \end{tikzpicture}
+    \caption{Run-time by number of threads (log scale): Wall-clock time on the left, CPU time per thread on the right.}
+    \label{fig:time_by_threads}
+\end{figure}

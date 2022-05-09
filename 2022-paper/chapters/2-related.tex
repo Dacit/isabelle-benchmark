@@ -1,0 +1,45 @@
+% !TeX root = ../main.tex
+
+\section{Related Work}\label{sec:related}
+Parallel run-time performance has been first analyzed for Isabelle
+when parallelism was introduced by \citeauthor{Parallel2009Wenzel} in~\cite{Parallel2009Wenzel}.
+Benchmarks for multiple different sessions on a single test machine already showed
+that the speedup
+(in terms of run-time)
+peaked at three worker threads with a factor of \num{3.0},
+and slightly decreased for four cores.
+\citeauthor{PolyParallel2010Matthews} described the necessary adaptations to the Poly/ML run-time
+that were necessary for introducing parallelism,
+and analyzed the resulting bottlenecks~\cite{PolyParallel2010Matthews}.
+They found that the parallelization model for Isabelle sometimes failed to fully utilize all worker threads.
+Moreover, the synchronization model that uses a single signal across all threads for guarded access
+was identified (but not analyzed) as a potential bottleneck.
+Finally, it was observed that the single-threaded garbage collection is responsible for up to \SI{30}{\percent} CPU-time for \num{16} threads.
+Overall, a maximum speedup of \num{5.0} to \num{6.2} could be achieved
+using \num{8} threads.
+
+In automatic theorem provers, run-time is an important factor,
+since it can dictate whether a goal can be proven within the given cut-off time.
+As a result, much research includes analysis of the run-time performance of provers
+or individual prover components.
+Typically, only a single hardware configuration is used,
+which is reasonable for the analysis for single-threaded systems~\cite{PerformanceESat2016Schulz}.
+However, since performing such analysis on a wide range of different hardware is often impractical,
+run-time performance analysis of parallel approaches
+is frequently carried out on single systems or clusters~\cite{PerformanceOR1991Ertel,ParallelDeduction1992Jindal,ParallelHyper2001Wu}.
+These results don't always generalize, because the hardware used can have a significant impact on the observed results.
+
+In contrast, results for the Isabelle \texttt{sledgehammer} proof-finder tool show that when running \emph{multiple} automatic provers to solve a goal,
+run-time becomes less important:
+In their \emph{judgement day} study~\cite{Judgementday2010Boehme},
+\citeauthor{Judgementday2010Boehme} found that running three different Automated Theorem Provers for five seconds each
+solved as many goals as running the most effective one for \SI{120}\second{}.
+Subsequently, run-time was not analyzed in follow-up work~\cite{SMTHammer2011Blanchette}.
+
+For automatic provers, a large range of benchmarks exist to judge their effectiveness on a given set of problems. 
+%A large range of benchmarks exists to judge the effectiveness of automatic provers,
+One of these is the widely known TPTP library~\cite{TPTP2009Sutcliffe}.
+However, there is not much work investigating the effect of hardware in the field of automated reasoning.
+To the best of our knowledge,
+there exists no other benchmark comparing the hardware impact on run-time performance of any theorem prover,
+and this is the first work that analyzes this effect on a wide range of different hardware.
