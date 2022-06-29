@@ -6,11 +6,11 @@
 \begin{table}[htbp]
   \caption{The five processors with the lowest time to solution, using each processor's optimal configuration (median value taken for multiple runs).}
   \label{tab:top_5_cpus}
-  \begin{tabular}{lr}\toprule
-    \textbf{Processor Model} & \textbf{Wall-Clock Time}
-    \DTLforeach*{topcpus}{\cpu=cpu,\time=time}{
-        \DTLiffirstrow{\\\cmidrule{1-2}}{\\}
-        \cpu & \SI{\time}{\second}
+  \begin{tabular}{lrrr}\toprule
+    \textbf{Processor Model} & \textbf{Total Cores} & \textbf{Base Clock} & \textbf{Wall-Clock Time}
+    \DTLforeach*{topcpus}{\cpu=cpu,\time=time,\cores=cores,\baseclock=baseclock}{
+        \DTLiffirstrow{\\\cmidrule{1-4}}{\\}
+        \cpu & \num{\cores} & \SI[round-mode=places,round-precision=1]{\baseclock}{\giga\hertz} & \SI{\time}{\second}
     }
     \\\bottomrule
   \end{tabular}

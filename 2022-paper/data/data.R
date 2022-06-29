@@ -4,6 +4,7 @@ suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(knitr))
 suppressPackageStartupMessages(library(caret))
+suppressPackageStartupMessages(library(stringr))
 
 the <- function(.data, .row) {
   if (count(.data) == 1) {
@@ -120,9 +121,17 @@ median_min_cputime_by_thread <- data.frame(benchmark_results[c('cpu', 'heap', 't
   summarise(cputime = min(cputime), .groups = 'drop') %>%
   mutate(cputime = cputime / threads)
 
-top_cpus <- right_join(median_min_time_df, cpu_score_results['X'], by = c('cpu' = 'X')) %>%
-  group_by(cpu) %>%
-  summarise(time = min(time)) %>%
+trim <- function(data, sep) {
+  str_split_fixed(data, sep, 2)[1]
+}
+
+top_cpus <- right_join(median_min_time_df, cpu_score_results[c('X', 'Cores', 'Base.Freq')], by = c('cpu' = 'X')) %>%
+  group_by(cpu, Cores, Base.Freq) %>%
+  summarise(time = min(time), .groups = 'drop') %>%
+  rowwise() %>%
+  transmute(cpu = cpu %>% trim('Processor') %>% trim('CPU') %>% trim('\\d+-Core') %>% trim('@'),
+            time = time, baseclock = Base.Freq / 1000, cores = Cores) %>%
+  ungroup() %>%
   top_n(n = -5, wt = time) %>%
   arrange(time = time) %>%
   format_csv()
@@ -301,7 +310,7 @@ dolfyn_mt_r2 <- summary(lm(time ~ score, data = benchmarks_hpc_mt_df %>% filter(
 
 # Prediction
 set.seed(42)
-ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 10, p = 0.7)
+ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 10)
 
 x3dmark_8t_df <- median_min_df %>%
   filter(threads == 8) %>%

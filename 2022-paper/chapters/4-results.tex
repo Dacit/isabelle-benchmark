@@ -47,8 +47,9 @@ In contrast,
 the CPU time divided by number of threads
 (which is not an ideal metric, but the only feasible solution due to the nature of the benchmark)
 flattens out at eight threads.
+In small-scale experiments, we found that the JVM process takes up a constant amount of CPU time independent of the number of threads (about \SI{26}{\percent} in single-core mode).
 This means that there is not too much computation overhead
-but the hardware can not be properly utilized,
+but the hardware can not be properly utilized by the ML process,
 most likely due to the single-threaded garbage collection that stops all threads when running.
 This is an inherently sequential task, which means that Amdahl's Law (the speedup is limited by $1 / (1-\text{parallelizable portion})$~\cite{amdahls}) limits the achievable speedup for this problem.
 \input{figures/time_by_threads}
@@ -87,7 +88,10 @@ at a relative factor of \num[round-mode=places,round-precision=2]{\heapOutlier}.
 Based on folk knowledge about Isabelle performance,
 we suspected that cache size would be a major factor;
 it was debated whether boost clock speed would be relevant.
-To test the hypotheses, we analyzed the impact of size of the L3-cache, base clock speed, and maximal (boost) clock speed on Isabelle performance.
+To test the hypotheses, we analyzed the impact of size of the L3-cache, base clock speed,
+and maximal (boost) clock speed
+(ignoring power-save cores where applicable)
+on Isabelle performance.
 Table \ref{tab:hardware_param_cor} shows the correlation between Isascore and those parameters (APA notation as explained in caption).
 At our significance level of $0.05$,
 we did not find cache size to impact performance significantly.
@@ -106,6 +110,10 @@ Performance benchmarks exist for many applications;
 additionally, synthetic benchmarks are often used to evaluate hardware performance.
 They can roughly be categorized into scientific computing versus consumer benchmarks. 
 In the following, we compare the results of our Isabelle community benchmark with a number of publicly available datasets for such benchmarks.
+For the comparison, we selected results with matching processors,
+and matched the benchmarks' multi-thread setting (e.g., specific thread count, or all cores).
+To obtain sufficiently large datasets,
+we selected some of the most popular benchmarks.
 
 \subsubsection{Benchmarks in High-Performance Computing}
 The first analysis we wish to conduct is a comparison of Isabelle performance with some scientific programs.
@@ -122,7 +130,7 @@ Finally, Dolfyn\footnote{Results from \url{https://openbenchmarking.org/test/pts
 
 \input{figures/hpc_benchmarks}
 
-\autoref{fig:hpc_benchmarks} shows the results when correlating each of the HPC benchmarks with Isabelle performance.
+\autoref{fig:hpc_benchmarks} shows the results when correlating each of the high-performance computing benchmarks with Isabelle performance.
 Himeno reports performance in terms of work done over time
 (where higher is better),
 while NAMD and Dolfyn measure time
@@ -162,7 +170,7 @@ All in all, the Isabelle benchmark seems quite similar to those consumer benchma
 This gives rise to prediction of Isabelle performance,
 which would allow one to judge hardware on which Isabelle was not executed before.
 However, single-threaded results are not meaningful for real-world performance,
-and scaling them to according to the average parallel efficiency did not yield helpful results
+and scaling them according to the average parallel efficiency did not yield helpful results
 ($R^2$-values: Cinebench \num[round-mode=places,round-precision=2]{\cinebenchMulTRSq}, Geekbench \num[round-mode=places,round-precision=2]{\geekbenchMulTRSq}, PassMark \num[round-mode=places,round-precision=2]{\passmarkMulTRSq}, 3DMark \num[round-mode=places,round-precision=2]{\xdmarkMulTRSq}).
 Not many datasets for consumer benchmarks report on results for different number of threads,
 most report only a single \enquote{multi-core} value where all threads are utilized.
@@ -179,7 +187,9 @@ Since the optimal number of threads is in between,
 we use the average of its \num{8}-thread and \num{16}-thread results
 to create a linear model for performance prediction
 (tuning for a non-uniform split did not yield better results).
-Using ten times ten-fold cross-validation with a $70/30$ train-test split,
+Using ten times ten-fold cross-validation
+(i.e., averaging results over multiple iterations,
+splitting the data into ten parts, and using each part as a test set and the remainder as training set),
 the linear regression has an average $R^2$-value of \num[round-mode=places,round-precision=2]{\modelRSq}.
 \autoref{fig:predictor} shows the final model ($R^2=\num[round-mode=places,round-precision=2]{\modelFinalRSq}$) and the resulting predictor for wall-clock time, which has a mean absolute error (MAE) of \SI[round-mode=places,round-precision=1]{\modelFinalTimeMae}{\second}.
 However, that error is somewhat exaggerated by the data collection method:
