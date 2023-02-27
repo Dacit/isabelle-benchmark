@@ -14,11 +14,13 @@ else
 fi
 
 # Check isabelle version
+versions=("Isabelle2021-1" "Isabelle2022")
 version=$($isabelle version)
-if [[ $version != "Isabelle2021-1" ]]; then
+if [[ ! " ${versions[*]} " =~ " $version " ]]; then
   echo "Wrong isabelle version: $version"
   exit 1
 fi
+echo "Using $version"
 
 # Create benchmark settings dir
 benchmark_user_home="$(pwd)/benchmark_$timestamp"
@@ -126,7 +128,7 @@ echo ""
 
 log="benchmark_$timestamp.csv"
 echo "Running benchmarks. Result table..."
-echo "cpu, os, heap, threads, time, cputime" | tee -a "$log"
+echo "cpu, os, heap, threads, time, cputime, version" | tee -a "$log"
 
 # Benchmark
 do_run()
@@ -138,7 +140,7 @@ do_run()
   res=$($isabelle build -c -o threads="$CORES" HOL-Analysis)
   elapsed=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $3}' | cut -c2-)
   cpu_time=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $6}')
-  echo "$elapsed, $cpu_time" | tee -a "$log"
+  echo "$elapsed, $cpu_time, $version" | tee -a "$log"
 }
 
 for config in "${configs[@]}"; do
