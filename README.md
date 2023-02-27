@@ -4,7 +4,7 @@ Results are in the [spreadsheet](https://docs.google.com/spreadsheets/d/12GhEwSN
 put yours in as well!
 
 ## Prerequisites
-Download and install [Isabelle2021-1](https://isabelle.in.tum.de/).
+Download and install [Isabelle](https://isabelle.in.tum.de/).
 
 ## Running the benchmark automatically
 Download the [benchmark script](https://raw.githubusercontent.com/Dacit/isabelle-benchmark/main/benchmark.sh).
