@@ -1,4 +1,4 @@
-# isabelle-benchmark
+# Isabelle Community Benchmark
 Isabelle user benchmark.
 Results are in the [spreadsheet](https://docs.google.com/spreadsheets/d/12GhEwSNSopowDBq5gSem3u39fliiIcoTIZHMnX4RE3A) -
 put yours in as well!
