@@ -85,7 +85,7 @@ esac
 echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores"
 echo "Creating benchmark configs. Note that heap settings apply to both the polyml/jvm process."
 declare -a configs=()
-if [[ $os == "darwin" && $arch == "arm64" ]]; then
+if [[ $version == "Isabelle2021-1" && $os == "darwin" && $arch == "arm64" ]]; then
   echo "Using rosetta emulation with x86_64..."
   arch="x86_64"
 fi
