@@ -3,14 +3,83 @@ set -eu
 
 timestamp=$(date +%Y-%m-%d_%H-%M-%S)
 
-# Get Isabelle
-if [[ $# -eq 0 ]]; then
-  isabelle="isabelle"
-elif [[ $# -eq 1 ]]; then
-  isabelle="$1"
+run_safe() {
+  echo "> $*"
+  "$@" || exit 255
+}
+
+threads=4
+
+# Options parse
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    "--threads")
+      threads="$2"
+      shift
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 255
+      ;;
+  esac
+  shift
+done
+
+
+detect_isabelle() {
+  isabelle=""
+  if [ -f "Isabelle2022/bin/isabelle" ]
+  then
+    isabelle="Isabelle2022/bin/isabelle"
+  elif [ -f "Isabelle2022.exe" ]
+  then
+    isabelle="Isabelle2022.exe"
+  else
+    echo "No isabelle detected yet."
+  fi
+}
+
+extract_archive() {
+  isabelle_archive=""
+  isabelle_archive_paths=("Isabelle2022_linux.tar.gz" "Isabelle2022_linux_arm.tar.gz" "Isabelle2022_macos.tar.gz")
+  for isabelle_archive_path in $isabelle_archive_paths
+  do
+    if [ -f "$isabelle_archive_path" ]
+    then
+      isabelle_archive="$isabelle_archive_path"
+      break
+    fi
+  done
+
+  if [ -z "$isabelle_archive" ]
+  then
+    echo "Error: No isabelle archive found."
+    exit 255
+  fi
+
+  echo "Extracting archive..."
+  run_safe tar -xf "$isabelle_archive"
+}
+
+
+detect_isabelle
+
+if [ -z "$isabelle" ]
+then
+  extract_archive
 else
-  echo "usage: $0 [ISABELLE]"
-  exit 1
+  echo "Detected existing Isabelle at $isabelle, not extracting archive."
+fi
+
+detect_isabelle
+
+if [ -z "$isabelle" ]
+then
+    echo "Error: No isabelle found after extracting archives."
+    exit 255
+else
+  echo "Detected Isabelle at $isabelle"
 fi
 
 # Check isabelle version
@@ -60,65 +129,20 @@ case "$OSTYPE" in
             exit 1;;
 esac
 
-if [[ $os == "darwin" ]]; then
-  memory=$(($(sysctl -n hw.memsize) / (1000*1024*1024)))
-  cpu=$(sysctl -n machdep.cpu.brand_string)
-  cores=$(sysctl -n hw.ncpu)
-else
-  memory=$(($(grep "^MemTotal:" /proc/meminfo | awk '{print $2}') / 1000024))
-  # Prompt user for cpu model name if not available (some arm systems)
-  if grep -q -m 1 "^model name" /proc/cpuinfo; then
-    cpu=$(grep -m 1 "^model name" /proc/cpuinfo | awk  '{print substr($0, index($0,$4))}')
-  else
-    echo "Could not identify cpu. Please specify cpu model name:"
-    read -r cpu
-  fi
-  cores=$(grep -c "^processor" /proc/cpuinfo)
-fi
-
 case $(uname -m) in
   "aarch64")  arch="arm64" ;;
   *)          arch=$(uname -m) ;;
 esac
 
 
-echo "Your system: $arch-$os on $cpu with ${memory}G RAM, $cores cores"
 echo "Creating benchmark configs. Note that heap settings apply to both the polyml/jvm process."
-declare -a configs=()
 if [[ $version == "Isabelle2021-1" && $os == "darwin" && $arch == "arm64" ]]; then
   echo "Using rosetta emulation with x86_64..."
   arch="x86_64"
 fi
 
-mk_mem_configs()
-{
-  local cor=$1
-  if [[ $cor -gt 16 && 32 -le $memory ]]; then
-      configs+=("${arch}_32-$os 16 $cor")
-  fi
-  for (( mem = cor; (2 * mem <= memory && mem <= 2 * cor); mem = 2 * mem )); do
-    if [[ $mem -le 16 ]]; then
-      configs+=("${arch}_32-$os $mem $cor")
-    else
-      configs+=("$arch-$os $mem $cor")
-    fi
-  done
-}
+configs=("$arch 4 $threads")
 
-if [[ $memory -ge 8 ]]; then
-  configs+=("${arch}_32-$os 4 1")
-fi
-if [[ $memory -ge 16 ]]; then
-  configs+=("${arch}_32-$os 8 1")
-fi
-for (( cor = 4; cor <= cores; cor = cor * 2 )); do
-  mk_mem_configs "$cor"
-done
-# Run max. core config if not power of 2
-if [[ $((cor / 2)) -lt $cores ]]; then
-  mk_mem_configs "$((cores/2))"
-  mk_mem_configs "$cores"
-fi
 echo "(platform heap cores):"
 
 for config in "${configs[@]}"; do
@@ -126,12 +150,14 @@ for config in "${configs[@]}"; do
 done
 echo ""
 
+
 # Benchmark
 do_run()
 {
   export PLATFORM=$1
   export HEAP=$2
   local CORES=$3
+  echo "Running Isabelle HOL analysis..."
   res=$($isabelle build -c -o threads="$CORES" HOL-Analysis)
   elapsed=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $3}' | cut -c2-)
   echo "Total runtime: $(elapsed) Seconds"
