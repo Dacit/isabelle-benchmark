@@ -4,8 +4,8 @@
   <Downloads>
     <Package>
       <URL>https://raw.githubusercontent.com/Vinpasso/isabelle-benchmark/main/benchmark_pts.sh</URL>
-      <MD5>0b4725932a3358a35cbe3b0cb2597dd5</MD5>
-      <SHA256>6080ef4944af12f00913a9cec00cbb80342463eb3016e78bbfeac979d2ffd81c</SHA256>
+      <MD5>7666a144614f0877d30af63e8f2479f3</MD5>
+      <SHA256>5df57a492d602f8facde73c6c0267d30b9bd859b837796e2c9e65b6626c39379</SHA256>
       <FileName>benchmark_pts.sh</FileName>
       <FileSize>3588</FileSize>
       <PlatformSpecific>Linux,Windows,MacOSX</PlatformSpecific>

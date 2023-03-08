@@ -141,7 +141,7 @@ if [[ $version == "Isabelle2021-1" && $os == "darwin" && $arch == "arm64" ]]; th
   arch="x86_64"
 fi
 
-configs=("$arch 4 $threads")
+configs=("${arch}_32-${os} 4 $threads")
 
 echo "(platform heap cores):"
 
