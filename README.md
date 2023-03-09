@@ -11,9 +11,9 @@ Download the [benchmark script](https://raw.githubusercontent.com/Dacit/isabelle
 The first two configurations will take 30 minutes each; each further configuration about 5 minutes.
 
 ### Linux / Os X
-If you have Isabelle2021-1 in your `$PATH`, run `./benchmark.sh`.
+If you have Isabelle in your `$PATH`, run `./benchmark.sh`.
 
-Otherwise, specify the path to your Isabelle2021-1 installation, e.g.: `./benchmark.sh /opt/Isabelle2021-1/bin/isabelle`
+Otherwise, specify the path to your Isabelle installation, e.g.: `./benchmark.sh /your/isabelle/dir/bin/isabelle`
 
 ### Windows
 Copy the script into your isabelle folder, start the isabelle cygwin terminal (`Cygwin-Terminal.bat`) and run the script from there: `./benchmark.sh`
