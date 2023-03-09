@@ -45,7 +45,7 @@ class InstallManager:
             logging.info(f"Skipping download of {archive_file}, file exists.")
 
         logging.info(f"Extracting {archive_file}...")
-        run(["tar", "-xf", archive_file], cwd=get_root_dir())
+        run(["tar", "-xf", "--skip-old-files", archive_file], cwd=get_root_dir())
 
     def check_executable_on_path(self, cmd: str):
         try:
