@@ -1,0 +1,8 @@
+[project]
+name = "just_benchmark"
+version = "1.0"
+description = "A bootstrapping tool for benchmarking using Phoronix Test Suite"
+
+[tool.distutils.build_exe]
+excludes = []
+zip_include_packages = []
