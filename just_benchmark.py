@@ -91,7 +91,7 @@ class PHPInstallManager(InstallManager):
 
     def install(self):
         self.download_and_extract_archive("https://www.php.net/distributions/php-8.2.3.tar.gz", "php-8.2.3.tar.gz")
-        run(["./configure", "--with-zip", "--without-iconv"], cwd=self.install_dir)
+        run(["./configure", "--with-zip", "--without-iconv", "--without-sqlite3"], cwd=self.install_dir)
         cpu_count = os.cpu_count() or 1
         run(["make", "-j", cpu_count], cwd=self.install_dir)
 
