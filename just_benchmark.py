@@ -132,7 +132,7 @@ class PHPInstallManager(InstallManager):
 
     def install(self):
         self.download_and_extract_archive("https://www.php.net/distributions/php-8.2.3.tar.gz", "php-8.2.3.tar.gz")
-        run(["./configure", "--with-zip", "--without-iconv", "--without-sqlite3"], cwd=self.install_dir)
+        run(["./configure", "--with-zip", "--without-iconv", "--without-sqlite3", "--without-pdo-sqlite"], cwd=self.install_dir)
         self.run_make()
 
     def detect(self):
