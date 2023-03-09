@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import shutil
 import subprocess
 import urllib.request
@@ -61,6 +62,14 @@ class InstallManager:
             except CalledProcessError:
                 return None
 
+    def check_shared_object_available_ldconfig(self, shared_object: str):
+        output = subprocess.check_output(["ldconfig", "-p"]).decode()
+        for line in output.splitlines():
+            match = re.match(f"\s*{shared_object}.*=>\s*(/.*{shared_object})", line)
+            if match:
+                return match.group(1)
+
+
     def install(self):
         raise NotImplementedError("Cannot install, missing override")
 
@@ -85,6 +94,38 @@ class InstallManager:
     def uninstall(self):
         shutil.rmtree(self.install_dir)
 
+    def run_make(self):
+        cpu_count = os.cpu_count() or 1
+        run(["make", "-j", cpu_count], cwd=self.install_dir)
+
+    def check_shared_object_at_location(self, shared_object_path: Path):
+        if shared_object_path.exists():
+            return shared_object_path
+        return None
+
+
+class CMakeInstallManager(InstallManager):
+
+    @property
+    def build_dir(self):
+        return self.install_dir.joinpath("build")
+
+
+class LibZipInstallManager(CMakeInstallManager):
+
+    def install(self):
+        self.download_and_extract_archive(
+            "https://github.com/nih-at/libzip/releases/download/v1.9.2/libzip-1.9.2.tar.gz", "libzip-1.9.2.tar.gz"
+        )
+        self.build_dir.mkdir(exist_ok=True)
+        run(["cmake", "..", "-DBUILD_TOOLS=OFF", "-DBUILD_REGRESS=OFF", "-DBUILD_EXAMPLES=OFF", "-DBUILD_DOC=OFF"])
+        self.run_make()
+
+    def detect(self):
+        return self.check_shared_object_available_ldconfig("libzip.so") or self.check_shared_object_at_location(
+            self.build_dir.joinpath("lib").joinpath("libzip.so")
+        )
+
 
 @dataclass
 class PHPInstallManager(InstallManager):
@@ -92,8 +133,7 @@ class PHPInstallManager(InstallManager):
     def install(self):
         self.download_and_extract_archive("https://www.php.net/distributions/php-8.2.3.tar.gz", "php-8.2.3.tar.gz")
         run(["./configure", "--with-zip", "--without-iconv", "--without-sqlite3"], cwd=self.install_dir)
-        cpu_count = os.cpu_count() or 1
-        run(["make", "-j", cpu_count], cwd=self.install_dir)
+        self.run_make()
 
     def detect(self):
         local_php_location = self.install_dir.joinpath("sapi").joinpath("cli").joinpath("php")
@@ -123,6 +163,12 @@ class PTSInstallManager(InstallManager):
 
 def run_phoronix_test_suite():
     root_directory = get_root_dir()
+
+    libzip_manager = LibZipInstallManager(install_dir=root_directory.joinpath("libzip-1.9.2"))
+    libzip = libzip_manager.provide()
+
+    os.environ["PKG_CONFIG_PATH"] = os.environ["PKG_CONFIG_PATH"] + ":" + str(libzip)
+
     php_manager = PHPInstallManager(install_dir=root_directory.joinpath("php-8.2.3"))
     php_location = php_manager.provide()
 
