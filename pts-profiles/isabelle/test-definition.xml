@@ -3,16 +3,16 @@
 <PhoronixTestSuite>
   <TestInformation>
     <Title>Isabelle</Title>
-    <AppVersion>Isabelle2022-1</AppVersion>
-    <Description>Isabelle running HOL Analysis</Description>
+    <AppVersion>Isabelle2022</AppVersion>
+    <Description>Isabelle running different theorem sets.</Description>
     <ResultScale>Seconds</ResultScale>
     <Proportion>LIB</Proportion>
     <SubTitle>Isabelle HOL Analysis</SubTitle>
-    <Executable>./benchmark_pts.sh</Executable>
+    <Executable>benchmark_pts.sh</Executable>
     <TimesToRun>3</TimesToRun>
   </TestInformation>
   <TestProfile>
-    <Version>1.0.0</Version>
+    <Version>1.1.4</Version>
     <SupportedPlatforms>Linux,Windows,MacOSX</SupportedPlatforms>
     <SoftwareType>Scientific</SoftwareType>
     <TestType>Processor</TestType>
@@ -22,27 +22,62 @@
     <ExternalDependencies></ExternalDependencies>
     <EnvironmentSize>3200</EnvironmentSize>
     <ProjectURL>https://isabelle.in.tum.de/index.html</ProjectURL>
-    <RepositoryURL></RepositoryURL>
+    <RepositoryURL>https://isabelle.in.tum.de/index.html</RepositoryURL>
     <Maintainer>Vincent Bode</Maintainer>
-    <SystemDependencies></SystemDependencies>
+    <SystemDependencies>fc-list</SystemDependencies>
   </TestProfile>
   <TestSettings>
     <Default>
-      <Arguments></Arguments>
+      <Arguments>--pts</Arguments>
       <PostArguments></PostArguments>
     </Default>
     <Option>
-      <DisplayName>Threads</DisplayName>
-      <Identifier>threads</Identifier>
-      <ArgumentPrefix>--threads</ArgumentPrefix>
+      <DisplayName>Target</DisplayName>
+      <Identifier>target</Identifier>
+      <ArgumentPrefix>--target </ArgumentPrefix>
       <ArgumentPostfix></ArgumentPostfix>
-      <DefaultEntry>4</DefaultEntry>
-      <Message>The number of threads to use for running analysis. Recommended &lt;= 32 and &lt;= num cores available</Message>
+      <DefaultEntry></DefaultEntry>
+      <Message>The Isabelle target to build. Suggested: Pure, HOL, HOL-Analysis</Message>
       <Menu>
         <Entry>
-          <Name>Threads</Name>
-          <Value></Value>
-          <Message>The number of threads to use for running analysis. Recommended &lt;= 32 and &lt;= num cores available</Message>
+          <Name>Pure</Name>
+          <Value>Pure</Value>
+          <Message>The Pure target</Message>
+        </Entry>
+        <Entry>
+          <Name>HOL</Name>
+          <Value>HOL</Value>
+          <Message>The HOL target</Message>
+        </Entry>
+      </Menu>
+    </Option>
+    <Option>
+      <DisplayName>Threads</DisplayName>
+      <Identifier>threads</Identifier>
+      <ArgumentPrefix>--threads </ArgumentPrefix>
+      <ArgumentPostfix></ArgumentPostfix>
+      <DefaultEntry></DefaultEntry>
+      <Message>How many threads to use for testing. Can use single-threaded, four-threaded, eight-threaded, or native threaded (not recommended for high thread count as wall clock execution time rises quickly with core counts >= 32.</Message>
+      <Menu>
+        <Entry>
+          <Name>Single</Name>
+          <Value>1</Value>
+          <Message>Single-threaded analysis</Message>
+        </Entry>
+        <Entry>
+          <Name>4</Name>
+          <Value>4</Value>
+          <Message>Four threads</Message>
+        </Entry>
+        <Entry>
+          <Name>8</Name>
+          <Value>8</Value>
+          <Message>Eight threads</Message>
+        </Entry>
+        <Entry>
+          <Name>All</Name>
+          <Value>all</Value>
+          <Message>All threads (not recommended for core counts >= 32).</Message>
         </Entry>
       </Menu>
     </Option>

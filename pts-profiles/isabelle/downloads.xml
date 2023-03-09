@@ -2,18 +2,18 @@
 <!--Phoronix Test Suite v10.8.3-->
 <PhoronixTestSuite>
   <Downloads>
+<!--    <Package>-->
+<!--      <URL>https://raw.githubusercontent.com/Vinpasso/isabelle-benchmark/main/benchmark_pts.sh</URL>-->
+<!--      <MD5>7666a144614f0877d30af63e8f2479f3</MD5>-->
+<!--      <SHA256>5df57a492d602f8facde73c6c0267d30b9bd859b837796e2c9e65b6626c39379</SHA256>-->
+<!--      <FileName>benchmark_pts.sh</FileName>-->
+<!--      <FileSize>3588</FileSize>-->
+<!--      <PlatformSpecific>Linux,Windows,MacOSX</PlatformSpecific>-->
+<!--      <ArchitectureSpecific>x86_64,aarch64</ArchitectureSpecific>-->
+<!--      <Optional></Optional>-->
+<!--    </Package>-->
     <Package>
-      <URL>https://raw.githubusercontent.com/Vinpasso/isabelle-benchmark/main/benchmark_pts.sh</URL>
-      <MD5>7666a144614f0877d30af63e8f2479f3</MD5>
-      <SHA256>5df57a492d602f8facde73c6c0267d30b9bd859b837796e2c9e65b6626c39379</SHA256>
-      <FileName>benchmark_pts.sh</FileName>
-      <FileSize>3588</FileSize>
-      <PlatformSpecific>Linux,Windows,MacOSX</PlatformSpecific>
-      <ArchitectureSpecific>x86_64,aarch64</ArchitectureSpecific>
-      <Optional></Optional>
-    </Package>
-    <Package>
-      <URL>https://isabelle.in.tum.de/dist/Isabelle2022_linux.tar.gz</URL>
+      <URL>https://isabelle.in.tum.de/dist/Isabelle2022_linux.tar.gz, http://mirror.clarkson.edu/isabelle/dist/Isabelle2022_linux.tar.gz</URL>
       <MD5>52340538b76b0493beae0a444d623fe6</MD5>
       <SHA256>e7fa6e9d9675d7a56751c00fa81ad0d081e1b6ffbdb0d7f02056853ba77f04c6</SHA256>
       <FileName>Isabelle2022_linux.tar.gz</FileName>
@@ -23,7 +23,7 @@
       <Optional></Optional>
     </Package>
     <Package>
-      <URL>https://isabelle.in.tum.de/dist/Isabelle2022_linux_arm.tar.gz</URL>
+      <URL>https://isabelle.in.tum.de/dist/Isabelle2022_linux_arm.tar.gz, http://mirror.clarkson.edu/isabelle/dist/Isabelle2022_linux_arm.tar.gz</URL>
       <MD5>2097bd572079c78a3ab4f862d8d12e3f</MD5>
       <SHA256>a88fc147f299c0b8e790ee6aff261e5b894de31c947bbf1538cd88342fd9fe2a</SHA256>
       <FileName>Isabelle2022_linux_arm.tar.gz</FileName>
@@ -33,7 +33,7 @@
       <Optional></Optional>
     </Package>
     <Package>
-      <URL>https://isabelle.in.tum.de/dist/Isabelle2022_macos.tar.gz</URL>
+      <URL>https://isabelle.in.tum.de/dist/Isabelle2022_macos.tar.gz, http://mirror.clarkson.edu/isabelle/dist/Isabelle2022_macos.tar.gz</URL>
       <MD5>e71b2297447fdbea66ef6d4b5e4122da</MD5>
       <SHA256>28444505089e1e88da5c659b3e9b68cf7a234fb8ad9fa74345beacb352cf042d</SHA256>
       <FileName>Isabelle2022_macos.tar.gz</FileName>
@@ -43,7 +43,7 @@
       <Optional></Optional>
     </Package>
     <Package>
-      <URL>https://isabelle.in.tum.de/dist/Isabelle2022.exe</URL>
+      <URL>https://isabelle.in.tum.de/dist/Isabelle2022.exe, http://mirror.clarkson.edu/isabelle/dist/Isabelle2022.exe</URL>
       <MD5>65a12cfa1c7054b6898bb7ea6cdf19ed</MD5>
       <SHA256>13ff99bfe4a531333c2edd6cfc1b1cf2a7e5cb4be42542427638567a66e34aff</SHA256>
       <FileName>Isabelle2022.exe</FileName>

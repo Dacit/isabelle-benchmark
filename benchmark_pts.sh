@@ -9,6 +9,9 @@ run_safe() {
 }
 
 threads=4
+output_file="/dev/null"
+install_only=""
+ISABELLE_TARGET="Pure"
 
 # Options parse
 while [ $# -gt 0 ]
@@ -16,6 +19,24 @@ do
   case "$1" in
     "--threads")
       threads="$2"
+      if [ "$threads" == "all" ]
+      then
+        threads="$(nproc)"
+      fi
+      shift
+      ;;
+    "--output-file")
+      output_file="$2"
+      shift
+      ;;
+    "--pts")
+      output_file="$LOG_FILE"
+      ;;
+    "--install-only")
+      install_only=1
+      ;;
+    "--target")
+      ISABELLE_TARGET="$2"
       shift
       ;;
     *)
@@ -91,6 +112,12 @@ if [[ ! " ${versions[*]} " =~ " $version " ]]; then
 fi
 echo "Using $version"
 
+if [ -n "$install_only" ]
+then
+  echo "Installation success".
+  exit 0
+fi
+
 # Create benchmark settings dir
 benchmark_user_home="$(pwd)/benchmark_$timestamp"
 if [[ -d "$benchmark_user_home" ]]; then
@@ -119,6 +146,11 @@ ML_PLATFORM="$ISABELLE_PLATFORM64"
 ML_HOME="$ML_HOME/../$ML_PLATFORM"
 EOF
 
+# Fabian:
+# isabelle build -b -R <session>. Das baut die requirements der session
+# Sollte mit schnellen optionen gebaut werden, damit nicht Zeit mit dependencies vergeudet wird.
+#
+
 # Find out system
 case "$OSTYPE" in
   darwin*)  os="darwin" ;;
@@ -141,7 +173,7 @@ if [[ $version == "Isabelle2021-1" && $os == "darwin" && $arch == "arm64" ]]; th
   arch="x86_64"
 fi
 
-configs=("${arch}_32-${os} 4 $threads")
+configs=("${arch}-${os} 4 $threads")
 
 echo "(platform heap cores):"
 
@@ -150,6 +182,11 @@ for config in "${configs[@]}"; do
 done
 echo ""
 
+# Credit: https://stackoverflow.com/questions/18149127/convert-a-duration-hhmmss-to-seconds-in-bash
+to_seconds () {
+    IFS=: read h m s <<< "$1"
+    echo $(( 10#$h * 3600 + 10#$m * 60 + 10#$s ))
+}
 
 # Benchmark
 do_run()
@@ -157,10 +194,14 @@ do_run()
   export PLATFORM=$1
   export HEAP=$2
   local CORES=$3
-  echo "Running Isabelle HOL analysis..."
-  res=$($isabelle build -c -o threads="$CORES" HOL-Analysis)
-  elapsed=$(echo "$res" | grep "Finished HOL-Analysis" | awk '{print $3}' | cut -c2-)
-  echo "Total runtime: $(elapsed) Seconds"
+  echo "Running Isabelle $ISABELLE_TARGET..."
+  run_safe $isabelle build -c -o threads="$CORES" "$ISABELLE_TARGET" | tee "$output_file"
+  MATCH_STRING="s/Finished $ISABELLE_TARGET (\([0-9:]*\).*/\1/p"
+#  echo "MATCH_STRING"
+  result=$(sed -ne "$MATCH_STRING" "$output_file")
+#  echo "Result match: '$result'"
+  result_seconds=$(to_seconds "$result")
+  echo "Total runtime: $result_seconds s" | tee -a "$output_file"
 }
 
 for config in "${configs[@]}"; do
