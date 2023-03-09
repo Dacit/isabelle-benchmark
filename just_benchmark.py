@@ -126,6 +126,9 @@ class LibZipInstallManager(CMakeInstallManager):
             self.build_dir.joinpath("lib").joinpath("libzip.so")
         )
 
+    def name(self):
+        return "LibZIP"
+
 
 @dataclass
 class PHPInstallManager(InstallManager):
@@ -167,7 +170,11 @@ def run_phoronix_test_suite():
     libzip_manager = LibZipInstallManager(install_dir=root_directory.joinpath("libzip-1.9.2"))
     libzip = libzip_manager.provide()
 
-    os.environ["PKG_CONFIG_PATH"] = os.environ["PKG_CONFIG_PATH"] + ":" + str(libzip)
+    os.environ["PKG_CONFIG_PATH"] = (
+            os.environ["PKG_CONFIG_PATH"]
+            + ":" + str(libzip.parent)
+            + ":" + str(libzip.parent.parent)
+    )
 
     php_manager = PHPInstallManager(install_dir=root_directory.joinpath("php-8.2.3"))
     php_location = php_manager.provide()
