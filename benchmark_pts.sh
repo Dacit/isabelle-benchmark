@@ -49,8 +49,12 @@ done
 
 
 detect_isabelle() {
-  isabelle=""
-  if [ -f "Isabelle2022/bin/isabelle" ]
+  isabelle="$(which isabelle)"
+  if [ $? -eq 0 ]
+  then
+    # Isabelle is on the path
+    true
+  elif [ -f "Isabelle2022/bin/isabelle" ]
   then
     isabelle="Isabelle2022/bin/isabelle"
   elif [ -f "Isabelle2022.exe" ]
@@ -64,7 +68,7 @@ detect_isabelle() {
 extract_archive() {
   isabelle_archive=""
   isabelle_archive_paths=("Isabelle2022_linux.tar.gz" "Isabelle2022_linux_arm.tar.gz" "Isabelle2022_macos.tar.gz")
-  for isabelle_archive_path in $isabelle_archive_paths
+  for isabelle_archive_path in "${isabelle_archive_paths[@]}"
   do
     if [ -f "$isabelle_archive_path" ]
     then
