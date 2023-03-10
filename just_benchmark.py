@@ -220,11 +220,11 @@ def provide_pts():
     os.environ["PATH"] = os.environ["PATH"] + ":" + str(cmake.parent)
 
     libzip_manager = LibZipInstallManager()
-    libzip_manager.provide()
+    libzip = libzip_manager.provide()
 
     os.environ["PKG_CONFIG_PATH"] = (
             os.environ.setdefault("PKG_CONFIG_PATH", "")
-            + ":" + str(libzip_manager.cmake_install_dir.joinpath("lib").joinpath("pkgconfig"))
+            + ":" + str(libzip.parent.joinpath("pkgconfig"))
     )
     logging.info(f"Set PKG_CONFIG_PATH={os.environ['PKG_CONFIG_PATH']}")
 
