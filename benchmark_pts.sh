@@ -149,11 +149,6 @@ ML_PLATFORM="$ISABELLE_PLATFORM64"
 ML_HOME="$ML_HOME/../$ML_PLATFORM"
 EOF
 
-# Fabian:
-# isabelle build -b -R <session>. Das baut die requirements der session
-# Sollte mit schnellen optionen gebaut werden, damit nicht Zeit mit dependencies vergeudet wird.
-#
-
 # Find out system
 case "$OSTYPE" in
   darwin*)  os="darwin" ;;
