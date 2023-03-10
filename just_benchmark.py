@@ -114,7 +114,8 @@ class InstallManager:
 class CMakeInstallManager(InstallManager):
 
     def detect(self):
-        return self.check_executable_on_path("cmake") or self.check_executable_at_location(self.install_dir.joinpath("bin").joinpath("cmake"))
+        return self.check_executable_on_path("cmake") or self.check_executable_at_location(
+            self.install_dir.joinpath("bin").joinpath("cmake"))
 
     def install(self):
         self.download_and_extract_archive(
@@ -128,6 +129,7 @@ class CMakeInstallManager(InstallManager):
     @property
     def name(self):
         return "CMake"
+
 
 class InstallManagerCMake(InstallManager):
 
@@ -154,9 +156,9 @@ class LibZipInstallManager(InstallManagerCMake):
         self.run_make(cwd=self.build_dir, target="install")
 
     def detect(self):
-        return self.check_shared_object_available_ldconfig("libzip.so") or self.check_shared_object_at_location(
-            self.cmake_install_dir.joinpath("lib").joinpath("libzip.so")
-        )
+        return self.check_shared_object_available_ldconfig("libzip.so") \
+            or self.check_shared_object_at_location(self.cmake_install_dir.joinpath("lib").joinpath("libzip.so")) \
+            or self.check_shared_object_at_location(self.cmake_install_dir.joinpath("lib64").joinpath("libzip.so"))
 
     @property
     def install_dir(self):
