@@ -11,7 +11,7 @@ run_safe() {
 threads=4
 output_file="/dev/null"
 install_only=""
-ISABELLE_TARGET="Pure"
+ISABELLE_TARGET="HOL-Analysis"
 
 # Options parse
 while [ $# -gt 0 ]
@@ -143,8 +143,7 @@ trap cleanup 0 1 2 3 6
 # Write benchmark settings file
 $isabelle components -I
 cat << \EOF > "$benchmark_user_home/.isabelle/$version/etc/settings"
-ML_OPTIONS="--maxheap ${HEAP}G"
-ISABELLE_TOOL_JAVA_OPTIONS="-Djava.awt.headless=true -Xms512m -Xmx${HEAP}g -Xss16m"
+ISABELLE_TOOL_JAVA_OPTIONS="-Djava.awt.headless=true -Xms512m -Xmx4g -Xss16m"
 ISABELLE_PLATFORM64="${PLATFORM}"
 ML_PLATFORM="$ISABELLE_PLATFORM64"
 ML_HOME="$ML_HOME/../$ML_PLATFORM"
@@ -169,18 +168,17 @@ case $(uname -m) in
   "aarch64")  arch="arm64" ;;
   *)          arch=$(uname -m) ;;
 esac
-
-
-echo "Creating benchmark configs. Note that heap settings apply to both the polyml/jvm process."
 if [[ $version == "Isabelle2021-1" && $os == "darwin" && $arch == "arm64" ]]; then
   echo "Using rosetta emulation with x86_64..."
   arch="x86_64"
 fi
+export PLATFORM="${arch}_32-$os"
 
-configs=("${arch}-${os} 4 $threads")
 
-echo "(platform heap cores):"
+echo "Creating benchmark configs. Note that heap settings apply to both the polyml/jvm process."
+configs=("$threads")
 
+echo "cores:"
 for config in "${configs[@]}"; do
   echo -n " ($config)"
 done
@@ -195,9 +193,7 @@ to_seconds () {
 # Benchmark
 do_run()
 {
-  export PLATFORM=$1
-  export HEAP=$2
-  local CORES=$3
+  local CORES=$1
   echo "Running Isabelle $ISABELLE_TARGET..."
   run_safe $isabelle build -c -o threads="$CORES" "$ISABELLE_TARGET" | tee "$output_file"
   MATCH_STRING="s/Finished $ISABELLE_TARGET (\([0-9:]*\).*/\1/p"
