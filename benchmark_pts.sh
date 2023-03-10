@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -eu
 
 timestamp=$(date +%Y-%m-%d_%H-%M-%S)
 
@@ -8,10 +7,28 @@ run_safe() {
   "$@" || exit 255
 }
 
+
+print_help() {
+  echo """
+    Usage: $0 [options]
+    Runs isabelle benchmark for Phoronix Test Suite
+
+    Options:
+      --threads <num>             Specify the number of threads to use for Isabelle. Recommended <= 32 threads.
+      --output-file <file>        The output file to write the isabelle log and solver time to.
+      --pts                       Enable benchmarking within phoronix test suite. Sets output file to \$LOG_FILE environment variable.
+      --install-only              Only detect or extract isabelle, don't actually benchmark.
+      --target                    Set the Isabelle target to build. Defaults to HOL-Analysis.
+      --isabelle-location <file>  Manually specify the location of isabelle.
+      -h --print_help             Print this help page.
+  """
+}
+
+isabelle=""
 threads=4
 output_file="/dev/null"
 install_only=""
-ISABELLE_TARGET="Pure"
+ISABELLE_TARGET="HOL-Analysis"
 
 # Options parse
 while [ $# -gt 0 ]
@@ -39,8 +56,17 @@ do
       ISABELLE_TARGET="$2"
       shift
       ;;
+    "--isabelle-location")
+      isabelle="$2"
+      shift
+      ;;
+    "-h"|"--help")
+      print_help
+      exit 255
+      ;;
     *)
       echo "Unknown option: $1"
+      print_help
       exit 255
       ;;
   esac
@@ -49,6 +75,12 @@ done
 
 
 detect_isabelle() {
+  if [ -n "$isabelle" ]
+  then
+    # Already have isabelle
+    return
+  fi
+
   isabelle="$(which isabelle)"
   if [ $? -eq 0 ]
   then
@@ -64,7 +96,7 @@ detect_isabelle() {
   then
     isabelle="Isabelle2022.exe"
   else
-    echo "No isabelle detected yet (set \$ISABELLE_PATH to manually specify isabelle location)"
+    echo "No isabelle detected yet (set --isabelle-location or \$ISABELLE_PATH to manually specify isabelle location)"
   fi
 }
 
