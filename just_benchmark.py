@@ -5,10 +5,8 @@ import shutil
 import subprocess
 import urllib.request
 from argparse import ArgumentParser
-from dataclasses import dataclass
-from subprocess import CalledProcessError
-
 from pathlib import Path
+from subprocess import CalledProcessError
 from typing import Sequence, Optional
 
 
