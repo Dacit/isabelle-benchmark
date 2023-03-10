@@ -206,8 +206,9 @@ def provide_pts():
 
     os.environ["PKG_CONFIG_PATH"] = (
             os.environ.setdefault("PKG_CONFIG_PATH", "")
-            + ":" + str(libzip_manager.cmake_install_dir)
+            + ":" + str(libzip_manager.cmake_install_dir.joinpath("lib").joinpath("pkgconfig"))
     )
+    logging.info(f"Set PKG_CONFIG_PATH={os.environ['PKG_CONFIG_PATH']}")
 
     php_manager = PHPInstallManager(install_dir=root_directory.joinpath("php-7.4.33"))
     php_location = php_manager.provide()
@@ -248,7 +249,9 @@ if __name__ == '__main__':
     logging.basicConfig(format="%(message)s", level=logging.INFO)
     parser = ArgumentParser(description="Tool to bootstrap Phoronix Test Suite to simplify benchmarking.")
 
-    subparsers = parser.add_subparsers(required=True, help="Choose what to do after bootstrapping Phoronix Test Suite")
+    subparsers = parser.add_subparsers(
+        dest='command', required=True, help="Choose what to do after bootstrapping Phoronix Test Suite"
+    )
 
     shell_command = subparsers.add_parser(
         "shell",
