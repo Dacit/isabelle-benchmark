@@ -12,7 +12,7 @@
     <TimesToRun>3</TimesToRun>
   </TestInformation>
   <TestProfile>
-    <Version>1.1.4</Version>
+    <Version>1.2.0</Version>
     <SupportedPlatforms>Linux,Windows,MacOSX</SupportedPlatforms>
     <SoftwareType>Scientific</SoftwareType>
     <TestType>Processor</TestType>
@@ -40,14 +40,9 @@
       <Message>The Isabelle target to build. Suggested: Pure, HOL, HOL-Analysis</Message>
       <Menu>
         <Entry>
-          <Name>Pure</Name>
-          <Value>Pure</Value>
-          <Message>The Pure target</Message>
-        </Entry>
-        <Entry>
-          <Name>HOL</Name>
-          <Value>HOL</Value>
-          <Message>The HOL target</Message>
+          <Name>HOL-Analysis</Name>
+          <Value>HOL-Analysis</Value>
+          <Message>The HOL-Analysis target</Message>
         </Entry>
       </Menu>
     </Option>
@@ -73,6 +68,11 @@
           <Name>8</Name>
           <Value>8</Value>
           <Message>Eight threads</Message>
+        </Entry>
+        <Entry>
+          <Name>16</Name>
+          <Value>16</Value>
+          <Message>Sixteen threads</Message>
         </Entry>
         <Entry>
           <Name>All</Name>
