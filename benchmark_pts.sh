@@ -54,6 +54,9 @@ detect_isabelle() {
   then
     # Isabelle is on the path
     true
+  elif [ -n "$ISABELLE_PATH" ]
+  then
+    isabelle="$ISABELLE_PATH"
   elif [ -f "Isabelle2022/bin/isabelle" ]
   then
     isabelle="Isabelle2022/bin/isabelle"
@@ -61,7 +64,7 @@ detect_isabelle() {
   then
     isabelle="Isabelle2022.exe"
   else
-    echo "No isabelle detected yet."
+    echo "No isabelle detected yet (set \$ISABELLE_PATH to manually specify isabelle location)"
   fi
 }
 
