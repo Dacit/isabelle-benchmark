@@ -59,11 +59,14 @@ class InstallManager:
                 return None
 
     def check_shared_object_available_ldconfig(self, shared_object: str) -> Optional[Path]:
-        output = subprocess.check_output(["ldconfig", "-p"]).decode()
-        for line in output.splitlines():
-            match = re.match(f"\s*{shared_object}.*=>\s*(/.*{shared_object})", line)
-            if match:
-                return Path(match.group(1))
+        try:
+            output = subprocess.check_output(["ldconfig", "-p"]).decode()
+            for line in output.splitlines():
+                match = re.match(f"\s*{shared_object}.*=>\s*(/.*{shared_object})", line)
+                if match:
+                    return Path(match.group(1))
+        except CalledProcessError:
+            pass
 
     def install(self):
         raise NotImplementedError("Cannot install, missing override")
