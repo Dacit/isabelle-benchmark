@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Sequence, Optional
 
 
-@dataclass
 class Settings:
     install_directory: str
     proxy_host: str
@@ -33,9 +32,7 @@ def run(invocation: Sequence[str], *args, **kwargs):
     return subprocess.check_call(invocation, *args, **kwargs)
 
 
-@dataclass
 class InstallManager:
-    install_dir: Path
 
     def download_and_extract_archive(self, source_url, archive_file):
         archive_path = get_root_dir().joinpath(archive_file)
@@ -75,6 +72,10 @@ class InstallManager:
 
     def detect(self):
         raise NotImplementedError("Cannot detect install manager presence, missing override")
+
+    @property
+    def install_dir(self):
+        raise NotImplementedError("Install directory not configured")
 
     @property
     def name(self):
@@ -120,6 +121,10 @@ class CMakeInstallManager(InstallManager):
             "cmake-3.25.3-linux-x86_64.tar.gz")
 
     @property
+    def install_dir(self):
+        return get_root_dir().joinpath("cmake-3.25.3-linux-x86_64")
+
+    @property
     def name(self):
         return "CMake"
 
@@ -153,11 +158,14 @@ class LibZipInstallManager(InstallManagerCMake):
         )
 
     @property
+    def install_dir(self):
+        return get_root_dir().joinpath("libzip-1.9.2")
+
+    @property
     def name(self):
         return "LibZIP"
 
 
-@dataclass
 class PHPInstallManager(InstallManager):
 
     def install(self):
@@ -171,11 +179,14 @@ class PHPInstallManager(InstallManager):
         return self.check_executable_on_path("php") or self.check_executable_at_location(local_php_location)
 
     @property
+    def install_dir(self):
+        return get_root_dir().joinpath("php-7.4.33")
+
+    @property
     def name(self):
         return "PHP"
 
 
-@dataclass
 class PTSInstallManager(InstallManager):
 
     def install(self):
@@ -190,6 +201,10 @@ class PTSInstallManager(InstallManager):
             local_pts_location, test_arg="system-info")
 
     @property
+    def install_dir(self):
+        return get_root_dir().joinpath("phoronix-test-suite")
+
+    @property
     def name(self):
         return "Phoronix Test Suite"
 
@@ -197,11 +212,11 @@ class PTSInstallManager(InstallManager):
 def provide_pts():
     root_directory = get_root_dir()
 
-    cmake_manager = CMakeInstallManager(install_dir=root_directory.joinpath("cmake-3.25.3-linux-x86_64"))
+    cmake_manager = CMakeInstallManager()
     cmake = cmake_manager.provide()
     os.environ["PATH"] = os.environ["PATH"] + ":" + str(cmake.parent)
 
-    libzip_manager = LibZipInstallManager(install_dir=root_directory.joinpath("libzip-1.9.2"))
+    libzip_manager = LibZipInstallManager()
     libzip_manager.provide()
 
     os.environ["PKG_CONFIG_PATH"] = (
@@ -210,12 +225,12 @@ def provide_pts():
     )
     logging.info(f"Set PKG_CONFIG_PATH={os.environ['PKG_CONFIG_PATH']}")
 
-    php_manager = PHPInstallManager(install_dir=root_directory.joinpath("php-7.4.33"))
+    php_manager = PHPInstallManager()
     php_location = php_manager.provide()
 
     os.environ["PATH"] = os.environ["PATH"] + ":" + str(php_location.parent)
 
-    pts_manager = PTSInstallManager(install_dir=root_directory.joinpath("phoronix-test-suite"))
+    pts_manager = PTSInstallManager()
     pts_location = pts_manager.provide()
 
     return pts_location
