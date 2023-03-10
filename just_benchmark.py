@@ -263,7 +263,7 @@ if __name__ == '__main__':
     parser = ArgumentParser(description="Tool to bootstrap Phoronix Test Suite to simplify benchmarking.")
 
     subparsers = parser.add_subparsers(
-        dest='command', required=True, help="Choose what to do after bootstrapping Phoronix Test Suite"
+        help="Choose what to do after bootstrapping Phoronix Test Suite"
     )
 
     shell_command = subparsers.add_parser(
@@ -279,6 +279,10 @@ if __name__ == '__main__':
     batch_benchmark_command.set_defaults(handler=batch_benchmark)
 
     options_result = parser.parse_args()
+
+    if options_result.handler is None:
+        parser.print_help()
+        exit(1)
 
     pts = provide_pts()
     options_result.handler(pts_location=pts)
