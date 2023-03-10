@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from subprocess import CalledProcessError
 
 from pathlib import Path
-from typing import Sequence
+from typing import Sequence, Optional
 
 
 @dataclass
@@ -20,7 +20,8 @@ class Settings:
     php_executable: str
 
     def proxy_as_dist(self):
-        return { "http": f"http://{self.proxy_host}:{self.proxy_port}"}
+        return {"http": f"http://{self.proxy_host}:{self.proxy_port}"}
+
 
 def get_root_dir() -> Path:
     return Path(__file__).parent.resolve()
@@ -47,14 +48,14 @@ class InstallManager:
         logging.info(f"Extracting {archive_file}...")
         run(["tar", "-xf", archive_file, "--skip-old-files"], cwd=get_root_dir())
 
-    def check_executable_on_path(self, cmd: str):
+    def check_executable_on_path(self, cmd: str) -> Optional[Path]:
         try:
             php_path = subprocess.check_output(["which", cmd])
-            return php_path.decode().strip()
+            return Path(php_path.decode().strip())
         except CalledProcessError:
             return None
 
-    def check_executable_at_location(self, exe_path: Path, test_arg="--version"):
+    def check_executable_at_location(self, exe_path: Path, test_arg="--version") -> Optional[Path]:
         if exe_path.exists():
             try:
                 subprocess.check_output([exe_path, test_arg])
@@ -62,13 +63,12 @@ class InstallManager:
             except CalledProcessError:
                 return None
 
-    def check_shared_object_available_ldconfig(self, shared_object: str):
+    def check_shared_object_available_ldconfig(self, shared_object: str) -> Optional[Path]:
         output = subprocess.check_output(["ldconfig", "-p"]).decode()
         for line in output.splitlines():
             match = re.match(f"\s*{shared_object}.*=>\s*(/.*{shared_object})", line)
             if match:
-                return match.group(1)
-
+                return Path(match.group(1))
 
     def install(self):
         raise NotImplementedError("Cannot install, missing override")
@@ -94,9 +94,14 @@ class InstallManager:
     def uninstall(self):
         shutil.rmtree(self.install_dir)
 
-    def run_make(self):
+    def run_make(self, cwd=None, target=None):
+        if cwd is None:
+            cwd = self.install_dir
         cpu_count = os.cpu_count() or 1
-        run(["make", "-j", cpu_count], cwd=self.install_dir)
+        invocation = ["make", "-j", cpu_count]
+        if target is not None:
+            invocation.append(target)
+        run(invocation, cwd=cwd)
 
     def check_shared_object_at_location(self, shared_object_path: Path):
         if shared_object_path.exists():
@@ -106,26 +111,48 @@ class InstallManager:
 
 class CMakeInstallManager(InstallManager):
 
+    def detect(self):
+        return self.check_executable_on_path("cmake") or self.check_executable_at_location(self.install_dir.joinpath("bin").joinpath("cmake"))
+
+    def install(self):
+        self.download_and_extract_archive(
+            "https://github.com/Kitware/CMake/releases/download/v3.25.3/cmake-3.25.3-linux-x86_64.tar.gz",
+            "cmake-3.25.3-linux-x86_64.tar.gz")
+
+    @property
+    def name(self):
+        return "CMake"
+
+class InstallManagerCMake(InstallManager):
+
     @property
     def build_dir(self):
         return self.install_dir.joinpath("build")
 
+    @property
+    def cmake_install_dir(self):
+        return self.install_dir.joinpath("install")
 
-class LibZipInstallManager(CMakeInstallManager):
+
+class LibZipInstallManager(InstallManagerCMake):
 
     def install(self):
         self.download_and_extract_archive(
             "https://github.com/nih-at/libzip/releases/download/v1.9.2/libzip-1.9.2.tar.gz", "libzip-1.9.2.tar.gz"
         )
         self.build_dir.mkdir(exist_ok=True)
-        run(["cmake", "..", "-DBUILD_TOOLS=OFF", "-DBUILD_REGRESS=OFF", "-DBUILD_EXAMPLES=OFF", "-DBUILD_DOC=OFF"])
-        self.run_make()
+        run(["cmake", "..", "-DBUILD_TOOLS=OFF", "-DBUILD_REGRESS=OFF", "-DBUILD_EXAMPLES=OFF", "-DBUILD_DOC=OFF",
+             f"-DCMAKE_INSTALL_PREFIX={self.cmake_install_dir}"],
+            cwd=self.build_dir)
+        self.run_make(cwd=self.build_dir)
+        self.run_make(cwd=self.build_dir, target="install")
 
     def detect(self):
         return self.check_shared_object_available_ldconfig("libzip.so") or self.check_shared_object_at_location(
-            self.build_dir.joinpath("lib").joinpath("libzip.so")
+            self.cmake_install_dir.joinpath("lib").joinpath("libzip.so")
         )
 
+    @property
     def name(self):
         return "LibZIP"
 
@@ -134,8 +161,9 @@ class LibZipInstallManager(CMakeInstallManager):
 class PHPInstallManager(InstallManager):
 
     def install(self):
-        self.download_and_extract_archive("https://www.php.net/distributions/php-8.2.3.tar.gz", "php-8.2.3.tar.gz")
-        run(["./configure", "--with-zip", "--without-iconv", "--without-sqlite3", "--without-pdo-sqlite"], cwd=self.install_dir)
+        self.download_and_extract_archive("https://www.php.net/distributions/php-7.4.33.tar.gz", "php-7.4.33.tar.gz")
+        run(["./configure", "--with-zip", "--without-iconv", "--without-sqlite3", "--without-pdo-sqlite"],
+            cwd=self.install_dir)
         self.run_make()
 
     def detect(self):
@@ -152,31 +180,36 @@ class PTSInstallManager(InstallManager):
 
     def install(self):
         self.download_and_extract_archive(
-            "https://phoronix-test-suite.com/releases/phoronix-test-suite-10.8.4.tar.gz", "phoronix-test-suite-10.8.4.tar.gz"
+            "https://phoronix-test-suite.com/releases/phoronix-test-suite-10.8.4.tar.gz",
+            "phoronix-test-suite-10.8.4.tar.gz"
         )
 
     def detect(self):
         local_pts_location = self.install_dir.joinpath("phoronix-test-suite")
-        return self.check_executable_on_path("phoronix-test-suite") or self.check_executable_at_location(local_pts_location, test_arg="system-info")
+        return self.check_executable_on_path("phoronix-test-suite") or self.check_executable_at_location(
+            local_pts_location, test_arg="system-info")
 
     @property
     def name(self):
         return "Phoronix Test Suite"
 
 
-def run_phoronix_test_suite():
+def provide_pts():
     root_directory = get_root_dir()
 
+    cmake_manager = CMakeInstallManager(install_dir=root_directory.joinpath("cmake-3.25.3-linux-x86_64"))
+    cmake = cmake_manager.provide()
+    os.environ["PATH"] = os.environ["PATH"] + ":" + str(cmake.parent)
+
     libzip_manager = LibZipInstallManager(install_dir=root_directory.joinpath("libzip-1.9.2"))
-    libzip = libzip_manager.provide()
+    libzip_manager.provide()
 
     os.environ["PKG_CONFIG_PATH"] = (
-            os.environ["PKG_CONFIG_PATH"]
-            + ":" + str(libzip.parent)
-            + ":" + str(libzip.parent.parent)
+            os.environ.setdefault("PKG_CONFIG_PATH", "")
+            + ":" + str(libzip_manager.cmake_install_dir)
     )
 
-    php_manager = PHPInstallManager(install_dir=root_directory.joinpath("php-8.2.3"))
+    php_manager = PHPInstallManager(install_dir=root_directory.joinpath("php-7.4.33"))
     php_location = php_manager.provide()
 
     os.environ["PATH"] = os.environ["PATH"] + ":" + str(php_location.parent)
@@ -184,6 +217,10 @@ def run_phoronix_test_suite():
     pts_manager = PTSInstallManager(install_dir=root_directory.joinpath("phoronix-test-suite"))
     pts_location = pts_manager.provide()
 
+    return pts_location
+
+
+def batch_benchmark(pts_location: Path):
     run(
         [pts_location, 'network-setup'],
     )
@@ -200,10 +237,32 @@ def run_phoronix_test_suite():
         [pts_location, 'batch-benchmark', 'vinpasso/isabelle'],
     )
 
+
+def shell(pts_location: Path):
+    run(
+        [pts_location, 'shell']
+    )
+
+
 if __name__ == '__main__':
     logging.basicConfig(format="%(message)s", level=logging.INFO)
     parser = ArgumentParser(description="Tool to bootstrap Phoronix Test Suite to simplify benchmarking.")
 
+    subparsers = parser.add_subparsers(required=True, help="Choose what to do after bootstrapping Phoronix Test Suite")
+
+    shell_command = subparsers.add_parser(
+        "shell",
+        help="Launch the Phoronix Test Suite shell after bootstrapping.",
+    )
+    shell_command.set_defaults(handler=shell)
+
+    batch_benchmark_command = subparsers.add_parser(
+        "batch_benchmark",
+        help="Run a benchmark or suite in batch mode. Takes care of various preliminary setup as well.",
+    )
+    batch_benchmark_command.set_defaults(handler=batch_benchmark)
+
     options_result = parser.parse_args()
 
-    run_phoronix_test_suite()
+    pts = provide_pts()
+    options_result.handler(pts_location=pts)
