@@ -65,7 +65,7 @@ class InstallManager:
                 match = re.match(f"\s*{shared_object}.*=>\s*(/.*{shared_object})", line)
                 if match:
                     return Path(match.group(1))
-        except CalledProcessError:
+        except (CalledProcessError, FileNotFoundError):
             pass
 
     def install(self):
