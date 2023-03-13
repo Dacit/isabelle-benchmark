@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# TODO: ALERT: When you edit this script, it must be MANUALLY copied into install.sh for it to take effect.
+
 timestamp=$(date +%Y-%m-%d_%H-%M-%S)
 
 run_safe() {

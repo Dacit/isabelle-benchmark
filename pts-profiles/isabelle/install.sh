@@ -2,7 +2,8 @@
 # Auto-generated install.sh script for starting/helping the test profile creation process...
 
 echo '''#!/usr/bin/env bash
-set -eu
+
+# TODO: ALERT: When you edit this script, it must be MANUALLY copied into install.sh for it to take effect.
 
 timestamp=$(date +%Y-%m-%d_%H-%M-%S)
 
@@ -11,10 +12,28 @@ run_safe() {
   "$@" || exit 255
 }
 
+
+print_help() {
+  echo """
+    Usage: $0 [options]
+    Runs isabelle benchmark for Phoronix Test Suite
+
+    Options:
+      --threads <num>             Specify the number of threads to use for Isabelle. Recommended <= 32 threads.
+      --output-file <file>        The output file to write the isabelle log and solver time to.
+      --pts                       Enable benchmarking within phoronix test suite. Sets output file to \$LOG_FILE environment variable.
+      --install-only              Only detect or extract isabelle, don't actually benchmark.
+      --target                    Set the Isabelle target to build. Defaults to HOL-Analysis.
+      --isabelle-location <file>  Manually specify the location of isabelle.
+      -h --print_help             Print this help page.
+  """
+}
+
+isabelle=""
 threads=4
 output_file="/dev/null"
 install_only=""
-ISABELLE_TARGET="Pure"
+ISABELLE_TARGET="HOL-Analysis"
 
 # Options parse
 while [ $# -gt 0 ]
@@ -42,8 +61,17 @@ do
       ISABELLE_TARGET="$2"
       shift
       ;;
+    "--isabelle-location")
+      isabelle="$2"
+      shift
+      ;;
+    "-h"|"--help")
+      print_help
+      exit 255
+      ;;
     *)
       echo "Unknown option: $1"
+      print_help
       exit 255
       ;;
   esac
@@ -52,22 +80,35 @@ done
 
 
 detect_isabelle() {
-  isabelle=""
-  if [ -f "Isabelle2022/bin/isabelle" ]
+  if [ -n "$isabelle" ]
+  then
+    # Already have isabelle
+    return
+  fi
+
+  isabelle="$(which isabelle)"
+  if [ $? -eq 0 ]
+  then
+    # Isabelle is on the path
+    true
+  elif [ -n "$ISABELLE_PATH" ]
+  then
+    isabelle="$ISABELLE_PATH"
+  elif [ -f "Isabelle2022/bin/isabelle" ]
   then
     isabelle="Isabelle2022/bin/isabelle"
   elif [ -f "Isabelle2022.exe" ]
   then
     isabelle="Isabelle2022.exe"
   else
-    echo "No isabelle detected yet."
+    echo "No isabelle detected yet (set --isabelle-location or \$ISABELLE_PATH to manually specify isabelle location)"
   fi
 }
 
 extract_archive() {
   isabelle_archive=""
   isabelle_archive_paths=("Isabelle2022_linux.tar.gz" "Isabelle2022_linux_arm.tar.gz" "Isabelle2022_macos.tar.gz")
-  for isabelle_archive_path in $isabelle_archive_paths
+  for isabelle_archive_path in "${isabelle_archive_paths[@]}"
   do
     if [ -f "$isabelle_archive_path" ]
     then
@@ -142,12 +183,16 @@ trap cleanup 0 1 2 3 6
 # Write benchmark settings file
 $isabelle components -I
 cat << \EOF > "$benchmark_user_home/.isabelle/$version/etc/settings"
-ML_OPTIONS="--maxheap ${HEAP}G"
-ISABELLE_TOOL_JAVA_OPTIONS="-Djava.awt.headless=true -Xms512m -Xmx${HEAP}g -Xss16m"
+ISABELLE_TOOL_JAVA_OPTIONS="-Djava.awt.headless=true -Xms512m -Xmx4g -Xss16m"
 ISABELLE_PLATFORM64="${PLATFORM}"
 ML_PLATFORM="$ISABELLE_PLATFORM64"
 ML_HOME="$ML_HOME/../$ML_PLATFORM"
 EOF
+
+# Fabian:
+# isabelle build -b -R <session>. Das baut die requirements der session
+# Sollte mit schnellen optionen gebaut werden, damit nicht Zeit mit dependencies vergeudet wird.
+#
 
 # Find out system
 case "$OSTYPE" in
@@ -163,23 +208,21 @@ case $(uname -m) in
   "aarch64")  arch="arm64" ;;
   *)          arch=$(uname -m) ;;
 esac
-
-
-echo "Creating benchmark configs. Note that heap settings apply to both the polyml/jvm process."
 if [[ $version == "Isabelle2021-1" && $os == "darwin" && $arch == "arm64" ]]; then
   echo "Using rosetta emulation with x86_64..."
   arch="x86_64"
 fi
+export PLATFORM="${arch}_32-$os"
 
-configs=("${arch}-${os} 4 $threads")
 
-echo "(platform heap cores):"
+echo "Creating benchmark configs. Note that heap settings apply to both the polyml/jvm process."
+configs=("$threads")
 
+echo "cores:"
 for config in "${configs[@]}"; do
   echo -n " ($config)"
 done
 echo ""
-
 
 # Credit: https://stackoverflow.com/questions/18149127/convert-a-duration-hhmmss-to-seconds-in-bash
 to_seconds () {
@@ -190,9 +233,7 @@ to_seconds () {
 # Benchmark
 do_run()
 {
-  export PLATFORM=$1
-  export HEAP=$2
-  local CORES=$3
+  local CORES=$1
   echo "Running Isabelle $ISABELLE_TARGET..."
   run_safe $isabelle build -c -o threads="$CORES" "$ISABELLE_TARGET" | tee "$output_file"
   MATCH_STRING="s/Finished $ISABELLE_TARGET (\([0-9:]*\).*/\1/p"
