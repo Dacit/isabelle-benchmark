@@ -253,6 +253,10 @@ def batch_benchmark(pts_location: Path):
     )
 
     run(
+        [pts_location, 'openbenchmarking-refresh'],
+    )
+
+    run(
         [pts_location, 'batch-benchmark', 'vinpasso/isabelle'],
     )
 
