@@ -285,7 +285,7 @@ if __name__ == '__main__':
 
     options_result = parser.parse_args()
 
-    if options_result.handler is None:
+    if 'handler' not in vars(options_result):
         parser.print_help()
         exit(1)
 
