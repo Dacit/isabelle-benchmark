@@ -14,7 +14,7 @@ else
 fi
 
 # Check isabelle version
-versions=("Isabelle2021-1" "Isabelle2022")
+versions=("Isabelle2021-1" "Isabelle2022" "Isabelle2023" "Isabelle2024" "Isabelle2025")
 version=$($isabelle version)
 if [[ ! " ${versions[*]} " =~ " $version " ]]; then
   echo "Wrong isabelle version: $version"
